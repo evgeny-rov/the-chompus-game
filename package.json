@@ -29,6 +29,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
+    "minimist": "^1.2.5",
     "phaser": "^3.20.1"
   }
 }
