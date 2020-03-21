@@ -1,5 +1,5 @@
 {
-  "name": "chompus-game",
+  "name": "the-chompus-game",
   "version": "0.0.1",
   "description": "web js 2d side-scroller game",
   "main": "src/index.js",
