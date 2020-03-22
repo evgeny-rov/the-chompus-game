@@ -1,4 +1,4 @@
-import Phaser from "phaser";
+import Phaser from "Phaser";
 import Level1 from "./levels/level1.js";
 
 const config = {
@@ -12,7 +12,7 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 1000 },
-      debut: true,
+      debug: true,
     }
   }
 };
