@@ -1,7 +1,7 @@
 {
   "name": "the-chompus-game",
   "version": "0.0.1",
-  "description": "web js 2d side-scroller game",
+  "description": "web js 2d endless-runner game",
   "main": "src/index.js",
   "scripts": {
     "build": "webpack --config webpack/prod.js ",
