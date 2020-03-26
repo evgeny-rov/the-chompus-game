@@ -58,17 +58,26 @@ export default class Level1 extends Phaser.Scene {
         this.obstacle.setScale(.5);
         
         this.physics.add.collider(this.ground, this.player);
-        this.physics.add.collider(this.ground, this.obstacle);
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
-
         /// experimentation zone
-        
+        const { width, height } = this.game.config;
+        this.score = 1;
+        this.scoreText = this.add.text(25, 20, `Score: ${this.score}`)
         /// the end of experimentation zone, you are clear mister!
     }
 
     update() {
+        const stages = {
+            1: (context) => console.log('stage: 1'),
+            2: (context) => console.log('stage: 2'),
+            max: () => console.log('max'),
+        }
+        const stage = this.score >= 400 ? 'max' : Math.ceil(this.score / 200);
+        stages[stage]();
+        ///
+        this.scoreText.setText(`Score: ${Math.floor(this.score += .5)}`);
         this.bg.tilePositionX += 8;
         this.obstacle.x -= 8;
 
