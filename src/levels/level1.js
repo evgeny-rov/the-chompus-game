@@ -19,7 +19,7 @@ export default class Level1 extends Phaser.Scene {
         this.physics.add.existing(this.ground, true);
 
         this.player = this.physics.add.sprite(200, 200, 'chompusdev', 0);
-        this.player.setScale(0.6)
+        this.player.setScale(0.5)
 
         this.anime = this.add.tileSprite(30, 225, 32, 64, 'kanako', 3)
         .setScale(5)
@@ -43,15 +43,15 @@ export default class Level1 extends Phaser.Scene {
         const anims = this.anims;
         anims.create({
             key: "player-run",
-            frames: anims.generateFrameNumbers('chompus', { start: 0, end: 2 }),
+            frames: anims.generateFrameNumbers('chompusdev', { start: 0, end: 3 }),
             frameRate: 15,
             repeat: -1
         });
-        //this.player.anims.play('player-run', true)
         /// the end of experimentation zone, you are clear mister!
     }
 
     update() {
+        
         const stages = {
             1: (context) => console.log('stage: 1'),
             2: (context) => console.log('stage: 2'),
@@ -86,8 +86,14 @@ export default class Level1 extends Phaser.Scene {
 
         if (this.cursors.space.isDown && this.player.body.touching.down) {
             this.player.setVelocityY(-800);
+        } 
+        
+    
+        if (this.player.body.velocity.y === 0 && this.player.body.touching.down) {
+            this.player.anims.play('player-run', true)
+        } else {
+            this.player.anims.stop();
+            this.player.setFrame(2);
         }
-
-
     }
 }
