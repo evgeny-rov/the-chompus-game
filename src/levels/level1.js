@@ -1,5 +1,8 @@
 import spriteImporter from '../spriteImporter.js';
+//import obstacleHandler from '../obstacleHandler.js';
+import obstacleHandler from '../obsHandler.js';
 let highscore = 0;
+let paused = false;
 
 export default class Level1 extends Phaser.Scene {
     preload() {
@@ -24,12 +27,7 @@ export default class Level1 extends Phaser.Scene {
         this.anime = this.add.tileSprite(30, 225, 32, 64, 'kanako', 3)
         .setScale(5)
         .setVisible(false);
-        
-        this.obstacle = this.physics.add.sprite(this.spawnPoint.x + 500, this.spawnPoint.y + 70, 'spritedev', 0);
-        this.obstacle.body.setAllowGravity(false)
-        this.obstacle.setScale(.5);
-        this.obstacle.setCircle(55, 0, 10)
-        
+       
         this.physics.add.collider(this.ground, this.player);
 
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -47,11 +45,14 @@ export default class Level1 extends Phaser.Scene {
             frameRate: 15,
             repeat: -1
         });
+
+        this.obstaclesTEST = new obstacleHandler(this)
         /// the end of experimentation zone, you are clear mister!
     }
 
     update() {
-        
+        this.obstaclesTEST.update();
+        /*
         const stages = {
             1: (context) => console.log('stage: 1'),
             2: (context) => console.log('stage: 2'),
@@ -59,41 +60,29 @@ export default class Level1 extends Phaser.Scene {
         }
         const stage = this.score >= 1000 ? 'max' : Math.ceil(this.score / 500);
         stages[stage]();
+        */
         ///
+
         this.scoreText.setText(`Score: ${Math.floor(this.score += .5)}`);
         this.bg.tilePositionX += 10;
-        this.obstacle.x -= 10;
 
         this.bg3.tilePositionX += .3;
         this.bg2.tilePositionX += .5;
         this.bg1.tilePositionX += .8 ;
 
-        const isOverlapping = this.physics.world.overlap(this.obstacle, this.player)
-        if (this.obstacle.x < -100) {
-            const nextSprite = Phaser.Math.Between(0, 4);
-            const nextScale = Phaser.Math.Between(50, 150) / 100;
-            const nextPosx = this.spawnPoint.x + Phaser.Math.Between(200, 500);
-            this.obstacle.body.reset(nextPosx, this.spawnPoint.y + 50);
-            this.obstacle.setFrame(nextSprite);
-            this.obstacle.setScale(nextScale);
-        }
-
-        if (isOverlapping) {
-            const newHighScore = this.score > highscore ? this.score : highscore;
-            highscore = Math.floor(newHighScore);
-            this.scene.restart()
-        }
-
         if (this.cursors.space.isDown && this.player.body.touching.down) {
             this.player.setVelocityY(-800);
         } 
         
-    
         if (this.player.body.velocity.y === 0 && this.player.body.touching.down) {
             this.player.anims.play('player-run', true)
         } else {
             this.player.anims.stop();
             this.player.setFrame(2);
+        }
+
+        if (this.cursors.down.isDown) {
+            this.scene.pause()
         }
     }
 }
