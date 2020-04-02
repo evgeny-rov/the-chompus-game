@@ -64,7 +64,7 @@ export default class Level1 extends Phaser.Scene {
         ///
 
         this.scoreText.setText(`Score: ${Math.floor(this.score += .5)}`);
-        this.bg.tilePositionX += 10;
+        this.bg.tilePositionX += 15;
 
         this.bg3.tilePositionX += .3;
         this.bg2.tilePositionX += .5;

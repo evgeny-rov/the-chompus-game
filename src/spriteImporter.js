@@ -9,6 +9,7 @@ import toadsprite from './assets/sprite.png';
 import kanako from './assets/kanako.png';
 import chomp from './assets/chompusd.png';
 
+import toadsdev from './assets/toadspritesdev.png';
 import chompusdev from './assets/chompusdev.png';
 
 export default (context) => {
@@ -23,4 +24,5 @@ export default (context) => {
     context.load.spritesheet('kanako', kanako, { frameWidth: 32, frameHeight: 64 });
     context.load.spritesheet('chompus', chomp, { frameWidth: 69, frameHeight: 94 });
     context.load.spritesheet('chompusdev', chompusdev, { frameWidth: 126, frameHeight: 96 });
+    context.load.spritesheet('toadsdev', toadsdev, { frameWidth: 142, frameHeight: 110 });
 }
