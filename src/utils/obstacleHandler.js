@@ -1,7 +1,16 @@
-export default class ObsHandler {
+export default class ObstacleHandler {
     constructor(scene) {
         this.context = scene;
         this.obstacles = this.context.add.group();
+        this.maxObstacles = 1;
+    }
+
+    setMax(amount) {
+        this.maxObstacles = amount;
+    }
+
+    getObstacles() {
+        return this.obstacles;
     }
 
     isEmpty() {
@@ -13,7 +22,7 @@ export default class ObsHandler {
     }
 
     createObjects() {
-        const amount = this.randomNumber(1, 3);
+        const amount = this.randomNumber(1, this.maxObstacles);
 
         const nextPosX = this.context.spawnPoint.x + this.randomNumber(200, 500);
         const nextPosY = this.context.spawnPoint.y + 50;
@@ -44,7 +53,6 @@ export default class ObsHandler {
     }
 
     updating() {
-        this.obstacles.incX(-15)
         const isOverlapping = this.context.physics.world.overlap(this.obstacles, this.context.player)
 
         if (isOverlapping) {
@@ -53,7 +61,7 @@ export default class ObsHandler {
             this.context.scene.restart()
         }
 
-        if (this.obstacles.getFirst(true).x < -132) {
+        if (this.obstacles.getFirst(true).x < -142) {
             this.obstacles.clear(true, true);
         }
     }

@@ -1,5 +1,5 @@
 import Phaser from "Phaser";
-import Level1 from "./levels/level1.js";
+import mainScene from "./scenes/mainScene.js";
 
 const config = {
   type: Phaser.AUTO,
@@ -7,7 +7,7 @@ const config = {
   height: 600,
   parent: "game-container",
   //pixelArt: true,
-  scene: Level1,
+  scene: mainScene,
   physics: {
     default: "arcade",
     arcade: {

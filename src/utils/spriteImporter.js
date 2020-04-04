@@ -1,16 +1,16 @@
-import four from './assets/layers/4.png';
-import three from './assets/layers/3.png';
-import two from './assets/layers/2.png';
-import one from './assets/layers/1.png';
+import four from '../assets/layers/4.png';
+import three from '../assets/layers/3.png';
+import two from '../assets/layers/2.png';
+import one from '../assets/layers/1.png';
 
-import player from './assets/player-stand.png';
-import groundv2 from './assets/groundv2.png';
-import toadsprite from './assets/sprite.png';
-import kanako from './assets/kanako.png';
-import chomp from './assets/chompusd.png';
+import player from '../assets/player-stand.png';
+import groundv2 from '../assets/groundv2.png';
+import toadsprite from '../assets/sprite.png';
+import kanako from '../assets/kanako.png';
+import chomp from '../assets/chompusd.png';
 
-import toadsdev from './assets/toadspritesdev.png';
-import chompusdev from './assets/chompusdev.png';
+import toadsdev from '../assets/toadspritesdev.png';
+import chompusdev from '../assets/chompusdev.png';
 
 export default (context) => {
     context.load.spritesheet('first', one, { frameWidth: 592, frameHeight: 272 });

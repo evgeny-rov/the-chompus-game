@@ -1,5 +1,10 @@
 export default (context) => {
-    context.groundBg.tilePositionX += 10;
-    context.obstaclesTEST.getObstacles().incX(-10);
+    const { speed } = context;
+    const stageSpeed = 10;
+    if (speed < stageSpeed) context.speed += 0.05;
+    console.log('stage2', 'speed', speed)
+
+    context.groundBg.tilePositionX += speed;
+    context.obstaclesTEST.getObstacles().incX(-speed);
     context.obstaclesTEST.setMax(2);
 }
