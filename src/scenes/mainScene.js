@@ -11,8 +11,6 @@ let highscore = 0;
 const settings = {
     maxStage: 800,
     stageTick: 400,
-    oSpawnX: 900,
-    oSpawnY: 300,
 }
 
 export default class Level1 extends Phaser.Scene {
@@ -21,15 +19,17 @@ export default class Level1 extends Phaser.Scene {
     }
 
     create() {
-        this.spawnPoint = { x: 900, y: 300 };
         const { width, height } = this.game.config;
+        //const { width, height } = this.game.scale.gameSize;
+        this.spawnPoint = { x: width, y: height / 2 };
         const centerX = posCalc(50, width);
-        const prlxBgY = posCalc(27, height);
+        const prlxBGY = posCalc(27, height);
+        const prlxBGSizeY = posCalc(50, height);
 
-        this.bg4 = this.add.tileSprite(centerX, prlxBgY, 480, 272, 'fourth').setScale(2);
-        this.bg3 = this.add.tileSprite(centerX, prlxBgY, 592, 272, 'third').setScale(1.5, 1.7);
-        this.bg2 = this.add.tileSprite(centerX, prlxBgY, 592, 272, 'second').setScale(1.5, 1.7);
-        this.bg1 = this.add.tileSprite(centerX, prlxBgY, 592, 272, 'first').setScale(1.5, 1.7);
+        this.bg4 = this.add.tileSprite(centerX, prlxBGY, width, height, 'fourth');
+        this.bg3 = this.add.tileSprite(centerX, prlxBGY, width, prlxBGSizeY, 'third').setScale(1.5);
+        this.bg2 = this.add.tileSprite(centerX, prlxBGY, width, prlxBGSizeY, 'second').setScale(1.5);
+        this.bg1 = this.add.tileSprite(centerX, prlxBGY, width, prlxBGSizeY, 'first').setScale(1.5);
 
         this.groundBg = this.add.tileSprite(centerX, posCalc(71, height), 1024, 709, 'newground').setScale(1, 0.6);
         

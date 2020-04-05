@@ -3,16 +3,20 @@ import mainScene from "./scenes/mainScene.js";
 
 const config = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
+  width: 1024,
+  height: 576,
   parent: "game-container",
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autocenter: Phaser.Scale.CENTER_BOTH
+  },
   //pixelArt: true,
   scene: mainScene,
   physics: {
     default: "arcade",
     arcade: {
       gravity: { y: 1500 },
-      //debug: true,
+      debug: true,
     }
   }
 };

@@ -1,7 +1,7 @@
 export default (context) => {
     const { speed } = context;
     const stageSpeed = 5;
-    if (speed < stageSpeed) context.speed += 0.1;
+    context.speed = 5;
     //console.log('stage1', 'speed', speed)
 
     context.groundBg.tilePositionX += speed;
