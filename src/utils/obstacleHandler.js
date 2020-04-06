@@ -1,3 +1,5 @@
+import randNum from './randomNum.js';
+
 export default class ObstacleHandler {
     constructor(scene) {
         this.context = scene;
@@ -5,68 +7,72 @@ export default class ObstacleHandler {
         this.maxObstacles = 1;
     }
 
-    setMax(amount) {
-        this.maxObstacles = amount;
-    }
-
     getObstacles() {
         return this.obstacles;
     }
 
-    isEmpty() {
-        return this.obstacles.getLength() === 0;
+    setMax(amount) {
+        this.maxObstacles = amount;
     }
 
-    randomNumber(min, max) {
-        return Phaser.Math.Between(min, max);
-    }
-
-    createObjects() {
-        const amount = this.randomNumber(1, this.maxObstacles);
-
-        const nextPosX = this.context.spawnPoint.x + this.randomNumber(200, 500);
-        const nextPosY = this.context.spawnPoint.y + 50;
-
-        const objects = [];
-        let prevPos;
-        let prevSize;
-
-        for (let i = amount; i > 0; i--) {
-            const nextSprite = this.randomNumber(0, 12);
-            const nextScale = this.randomNumber(40, 100) / 100;
-            const currentSize = (142 * nextScale)
-            const obstaclePlace = prevPos ? prevPos - (prevSize / 2 + currentSize / 2) : nextPosX + currentSize;
-            prevPos = obstaclePlace;
-            prevSize = currentSize;
-
-            const obstacle = this.context.physics.add.sprite(Math.floor(obstaclePlace), nextPosY, 'toadsdev', nextSprite);
-            obstacle.body.setAllowGravity(false);
-            obstacle.setScale(nextScale);
-            obstacle.setCircle(55, 0, 10);
-            objects.push(obstacle);
-        }
-        return objects;
-    }
-
-    adding() {
-        this.obstacles.addMultiple(this.createObjects());
-    }
-
-    updating() {
-        const isOverlapping = this.context.physics.world.overlap(this.obstacles, this.context.player)
-
-        if (isOverlapping) {
-            //const newHighScore = this.score > highscore ? this.score : highscore;
-            //highscore = Math.floor(newHighScore);
-            this.context.scene.restart()
+    pickUnbunchedPos(refPos, refSize, withinBounds) {
+        if (withinBounds) {
+        const after = randNum(0, 1) === 1;
+        const pivot = after ? refPos + (refSize / 2) : refPos - (refSize / 2);
+        return after
+        ? randNum(pivot, pivot + 400)
+        : randNum(this.context.spawnPoint.x, pivot);
+        } else {
+            return this.context.spawnPoint.x + randNum(200, 500)
         }
 
-        if (this.obstacles.getFirst(true).x < -142) {
-            this.obstacles.clear(true, true);
+    }
+
+    posEval(currentSize) {
+        const lastObs = this.obstacles.getLast(true);
+        if (lastObs) {
+            const lastSize = lastObs.displayWidth;
+            const lastPos = lastObs.x;
+
+            const toBunch = randNum(0, 2) === 0;
+            const inBounds = lastPos > this.context.spawnPoint.x;
+
+            const nextPos = toBunch && inBounds
+            ? lastPos + (lastSize / 2 + currentSize / 2)
+            : this.pickUnbunchedPos(lastPos, lastSize, inBounds);
+
+            return Math.floor(nextPos);
+        } else {
+            return this.context.spawnPoint.x + randNum(100, 700);
         }
+    }
+
+    create() {
+        const sprite = randNum(0, 12);
+        const scale = randNum(40, 100) / 100;
+        const currentSize = (142 * scale);
+        const xPos = this.posEval(currentSize);
+        const yPos = this.context.spawnPoint.y;
+
+        const obstacle = this.context.physics.add.sprite(xPos, yPos, 'toadsdev', sprite);
+        obstacle.body.setAllowGravity(false);
+        obstacle.setScale(scale);
+        obstacle.setCircle(55, 0, 10);
+
+        this.context.physics.add.overlap(obstacle, this.context.player, (toad, body) => {
+            //this.obstacles.remove(toad, true)
+            //this.context.scene.pause()
+        });
+
+        this.context.physics.add.overlap(obstacle, this.context.catcher, (toad, body) => {
+            toad.destroy();
+            this.obstacles.remove(toad, true);
+        });
+
+        return obstacle;
     }
 
     update() {
-        return this.isEmpty() ? this.adding() : this.updating();
+        if (this.obstacles.getLength() < this.maxObstacles) this.obstacles.add(this.create());
     }
 };

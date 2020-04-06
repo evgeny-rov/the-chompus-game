@@ -5,6 +5,6 @@ export default (context) => {
     //console.log('stage1', 'speed', speed)
 
     context.groundBg.tilePositionX += speed;
-    context.obstaclesTEST.getObstacles().incX(-speed);
-    context.obstaclesTEST.setMax(1);
+    context.obstacles.getObstacles().incX(-speed);
+    context.obstacles.setMax(1);
 }
