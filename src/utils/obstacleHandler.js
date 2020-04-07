@@ -15,35 +15,31 @@ export default class ObstacleHandler {
         this.maxObstacles = amount;
     }
 
-    pickUnbunchedPos(refPos, refSize, withinBounds) {
-        if (withinBounds) {
-        const after = randNum(0, 1) === 1;
-        const pivot = after ? refPos + (refSize / 2) : refPos - (refSize / 2);
-        return after
-        ? randNum(pivot, pivot + 400)
-        : randNum(this.context.spawnPoint.x, pivot);
-        } else {
-            return this.context.spawnPoint.x + randNum(200, 500)
-        }
+    pickUnbunchedPos(refPos, refSize) {
+        const putAfter = randNum(0, 1) === 1;
+        const pivot = putAfter ? refPos + (refSize / 2) : refPos - (refSize / 2);
 
+        return putAfter
+        ? randNum(pivot, pivot + 500)
+        : randNum(this.context.spawnPoint.x, pivot);
     }
 
     posEval(currentSize) {
         const lastObs = this.obstacles.getLast(true);
-        if (lastObs) {
+        const lastPos = lastObs && lastObs.x;
+        const notAccessible = lastPos && lastPos - this.context.spawnPoint.x < 150;
+        if (this.obstacles.getLength() === 0 || notAccessible) {
+            return this.context.spawnPoint.x + randNum(100, 700);
+        } else {
+            //randNum(0, 5) === 0;
+            const toBunch = false;
             const lastSize = lastObs.displayWidth;
-            const lastPos = lastObs.x;
 
-            const toBunch = randNum(0, 2) === 0;
-            const inBounds = lastPos > this.context.spawnPoint.x;
-
-            const nextPos = toBunch && inBounds
+            const nextPos = toBunch
             ? lastPos + (lastSize / 2 + currentSize / 2)
-            : this.pickUnbunchedPos(lastPos, lastSize, inBounds);
+            : this.pickUnbunchedPos(lastPos, lastSize);
 
             return Math.floor(nextPos);
-        } else {
-            return this.context.spawnPoint.x + randNum(100, 700);
         }
     }
 
@@ -58,6 +54,13 @@ export default class ObstacleHandler {
         obstacle.body.setAllowGravity(false);
         obstacle.setScale(scale);
         obstacle.setCircle(55, 0, 10);
+
+        this.context.physics.add.overlap(obstacle, this.obstacles, (toad, body) => {
+            const posX = toad.x;
+            console.log('overlap', toad.x)
+            toad.setX(randNum(posX + 200, posX + 600));
+            console.log('overlap after', toad.x)
+        });
 
         this.context.physics.add.overlap(obstacle, this.context.player, (toad, body) => {
             //this.obstacles.remove(toad, true)
