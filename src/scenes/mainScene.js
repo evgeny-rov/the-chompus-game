@@ -1,5 +1,6 @@
 import spriteImporter from '../utils/spriteImporter.js';
 import obstacleHandler from '../utils/obstacleHandler.js';
+import Player from '../player.js';
 import posCalc from '../utils/percentageCalc.js';
 
 import stage1 from '../stages/stage1.js';
@@ -21,7 +22,8 @@ export default class Level1 extends Phaser.Scene {
     create() {
         const { width, height } = this.game.config;
         //const { width, height } = this.game.scale.gameSize;
-        this.spawnPoint = { x: width, y: posCalc(55, height)}; 
+        this.spawnPoint = { x: width, y: posCalc(55, height)};
+        this.playerSpawn = { x: posCalc(25, width), y: posCalc(50, height) };
         const centerX = posCalc(50, width);
         const prlxBGY = posCalc(27, height);
         const prlxBGSizeY = posCalc(50, height);
@@ -39,28 +41,16 @@ export default class Level1 extends Phaser.Scene {
         this.catcher = this.add.rectangle(50, height / 2, 10, height).setAlpha(0);
         this.physics.add.existing(this.catcher, true);
 
-        this.player = this.physics.add.sprite(posCalc(25, width), posCalc(50, height), 'chompusdev', 0);
-        this.player.setScale(0.5)
-       
-        this.physics.add.collider(this.ground, this.player);
-
-        this.cursors = this.input.keyboard.createCursorKeys();
+        this.keys = this.input.keyboard.createCursorKeys();
 
         /// experimentation zone
+        this.player = new Player(this, this.playerSpawn.x, this.playerSpawn.y, this.keys);
+        this.physics.add.collider(this.ground, this.player.sprite);
+        this.obstacles = new obstacleHandler(this)
         
         this.score = 401;
         this.scoreText = this.add.text(posCalc(3, width), posCalc(7, height), `Score: ${this.score}`);
         this.highscore = this.add.text(posCalc(3, width), posCalc(3, height), `Highscore: ${highscore}`);
-
-        const anims = this.anims;
-        anims.create({
-            key: "player-run",
-            frames: anims.generateFrameNumbers('chompusdev', { start: 0, end: 3 }),
-            frameRate: 15,
-            repeat: -1
-        });
-
-        this.obstacles = new obstacleHandler(this)
 
         this.speed = 1;
         /// the end of experimentation zone, you are clear mister!
@@ -76,6 +66,7 @@ export default class Level1 extends Phaser.Scene {
         stages[stage](this);
 
         this.obstacles.update();
+        this.player.update();
 
         //this.scoreText.setText(`Score: ${Math.floor(this.score += .2)}`);
 
@@ -83,22 +74,12 @@ export default class Level1 extends Phaser.Scene {
         this.bg2.tilePositionX += .5;
         this.bg1.tilePositionX += .8;
 
-        if (this.cursors.space.isDown && this.player.body.touching.down) {
-            this.player.setVelocityY(-800);
-        } 
         
-        if (this.player.body.velocity.y === 0 && this.player.body.touching.down) {
-            this.player.anims.play('player-run', true)
-        } else {
-            this.player.anims.stop();
-            this.player.setFrame(2);
-        }
-
-        if (this.cursors.down.isDown) {
+        if (this.keys.down.isDown) {
             this.scene.restart()
         }
 
-        if (this.cursors.up.isDown) {
+        if (this.keys.up.isDown) {
             this.scene.pause()
         }
     }
