@@ -6,6 +6,7 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 .eslintrc.js
+temp/
 
 # Vendors
 node_modules/

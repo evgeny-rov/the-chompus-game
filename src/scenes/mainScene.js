@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 import spriteImporter from '../utils/spriteImporter';
-import ObstacleHandler from '../utils/ObstacleHandler';
+import ObstacleHandler from '../ObstacleHandler';
 import Player from '../player';
 import posCalc from '../utils/percentageCalc';
 
@@ -26,6 +26,7 @@ export default class Level1 extends Phaser.Scene {
     // const { width, height } = this.game.scale.gameSize;
     this.spawnPoint = { x: width, y: posCalc(55, height) };
     this.playerSpawn = { x: posCalc(25, width), y: posCalc(50, height) };
+
     const centerX = posCalc(50, width);
     const prlxBGY = posCalc(27, height);
     const prlxBGSizeY = posCalc(50, height);
@@ -44,9 +45,10 @@ export default class Level1 extends Phaser.Scene {
     this.physics.add.existing(this.catcher, true);
 
     this.keys = this.input.keyboard.createCursorKeys();
+    this.pointer = this.input.activePointer;
 
     // experimentation zone
-    this.player = new Player(this, this.playerSpawn.x, this.playerSpawn.y, this.keys);
+    this.player = new Player(this, this.playerSpawn.x, this.playerSpawn.y, this.keys, this.pointer);
     this.physics.add.collider(this.ground, this.player.sprite);
     this.obstacles = new ObstacleHandler(this);
 
