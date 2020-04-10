@@ -53,6 +53,11 @@ export default class ObstacleHandler {
     obstacle.setScale(scale);
     obstacle.setCircle(55, 0, 10);
 
+    const scoreCollider = this.context.physics.add.collider(obstacle, this.context.scoreCheck, (toad, body) => {
+      this.context.physics.world.removeCollider(scoreCollider);
+      this.context.scoreText.setText(`${this.context.score += 1}`);
+    });
+
     this.context.physics.add.overlap(obstacle, this.obstacles, (toad, body) => {
       const posX = toad.x;
       toad.setX(randNum(posX, posX + 600));

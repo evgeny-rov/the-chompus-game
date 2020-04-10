@@ -16,6 +16,13 @@ const settings = {
   stageTick: 400,
 };
 
+const textStyle = {
+  fontFamily: 'Lucida Console',
+  fontSize: '32px',
+  color: '#fff',
+  align: 'center',
+};
+
 export default class Level1 extends Phaser.Scene {
   preload() {
     spriteImporter(this);
@@ -41,6 +48,9 @@ export default class Level1 extends Phaser.Scene {
     this.ground = this.add.rectangle(centerX, posCalc(65, height), 800, 10).setAlpha(0);
     this.physics.add.existing(this.ground, true);
 
+    this.scoreCheck = this.add.rectangle(this.playerSpawn.x - 50, this.playerSpawn.y, 10, 150).setAlpha(0);
+    this.physics.add.existing(this.scoreCheck, true);
+
     this.catcher = this.add.rectangle(50, height / 2, 10, height).setAlpha(0);
     this.physics.add.existing(this.catcher, true);
 
@@ -52,27 +62,34 @@ export default class Level1 extends Phaser.Scene {
     this.physics.add.collider(this.ground, this.player.sprite);
     this.obstacles = new ObstacleHandler(this);
 
-    this.score = 401;
-    this.scoreText = this.add.text(posCalc(3, width), posCalc(7, height), `Score: ${this.score}`);
+    this.progress = 401;
+    this.progressText = this.add.text(posCalc(3, width), posCalc(7, height), `DevProgress: ${this.progress}`);
     // this.highscore = this.add.text(posCalc(3, width), posCalc(3, height), `Highscore: ${highscore}`);
+    this.score = 0;
+
+    this.scoreTextBG = this.add.circle(centerX, 0, 50, 0x000000, 0.3);
+    this.scoreText = this.add.text(centerX, posCalc(1.5, height), this.score, textStyle)
+      .setOrigin(0.5, 0)
+      .setAlpha(0.9);
 
     this.speed = 1;
     // the end of experimentation zone, you are clear mister!
   }
 
   update() {
+    //console.log(this.scoreText)
     const stages = {
       1: (context) => stage1(context),
       2: (context) => stage2(context),
       max: (context) => stageMax(context),
     };
-    const stage = this.score >= settings.maxStage ? 'max' : Math.ceil(this.score / settings.stageTick);
+    const stage = this.progress >= settings.maxStage ? 'max' : Math.ceil(this.progress / settings.stageTick);
     stages[stage](this);
 
     this.obstacles.update();
     this.player.update();
 
-    // this.scoreText.setText(`Score: ${Math.floor(this.score += .2)}`);
+    // this.progressText.setText(`Score: ${Math.floor(this.progress += .2)}`);
 
     this.bg3.tilePositionX += 0.3;
     this.bg2.tilePositionX += 0.5;
