@@ -7,7 +7,7 @@ import mainScene from './scenes/mainScene';
 const config = {
   type: Phaser.CANVAS,
   width: 1024,
-  height: 576,
+  height: 450,
   parent: 'game-container',
   scale: {
     mode: Phaser.Scale.FIT,
