@@ -5,6 +5,7 @@ export default class ObstacleHandler {
     this.context = scene;
     this.obstacles = this.context.physics.add.group();
     this.maxObstacles = 1;
+    this.playerInvincible = false;
   }
 
   getObstacles() {
@@ -15,10 +16,18 @@ export default class ObstacleHandler {
     this.maxObstacles = amount;
   }
 
+  setInvincible() {
+    this.playerInvincible = true;
+  }
+
+  unsetInvincible() {
+    this.playerInvincible = false;
+  }
+
   stomp() {
     const { obstacleCollider } = this.context;
+    this.obstacles.setVelocityY(-400);
     obstacleCollider.active = false;
-    console.log(obstacleCollider)
   }
 
   updateObstacles() {
@@ -52,10 +61,24 @@ export default class ObstacleHandler {
     });
 
     this.context.physics.add.overlap(obstacle, this.context.player.sprite, (toad, body) => {
-      //const { score, highscore } = this.context;
-      //const newHighscore = score > highscore ? score : highscore;
-      //this.context.setHighscore(newHighscore);
-      //this.context.scene.restart();
+      if (!this.playerInvincible) {
+        const { score, highscore } = this.context;
+        const newHighscore = score > highscore ? score : highscore;
+        this.context.setHighscore(newHighscore);
+        this.context.scene.restart();
+      }
+    });
+
+    this.context.physics.add.collider(obstacle, this.context.stompCatcher, (toad) => {
+      const { obstacleCollider } = this.context;
+      obstacleCollider.active = true;
+      const newSprite = randNum(0, 12);
+      const newScale = randNum(50, 80) / 100;
+      toad.body.reset(randNum(x, x + 500), y);
+      toad.setScale(newScale);
+      toad.setFrame(newSprite);
+      scoreCollider.active = true;
+      this.unsetInvincible();
     });
 
     return obstacle;

@@ -63,6 +63,9 @@ export default class Level1 extends Phaser.Scene {
     this.catcher = this.add.rectangle(-200, height / 2, 10, height).setAlpha(0);
     this.physics.add.existing(this.catcher, true);
 
+    this.stompCatcher = this.add.rectangle(centerX, posCalc(100, height), width + 3000, 10).setAlpha(0);
+    this.physics.add.existing(this.stompCatcher, true);
+
     this.keys = this.input.keyboard.createCursorKeys();
     this.pointer = this.input.activePointer;
 
@@ -116,17 +119,8 @@ export default class Level1 extends Phaser.Scene {
     this.bg2.tilePositionX += 0.5;
     this.bg1.tilePositionX += 0.8;
 
-    if (this.keys.down.isDown) {
-      this.progress += 10;
-      this.scene.restart();
-    }
-
     if (this.keys.up.isDown) {
       this.scene.pause();
-    }
-
-    if (this.keys.right.isDown) {
-      this.camera.shake(300, 0.02);
     }
   }
 }

@@ -1,4 +1,4 @@
-import randomNum from './utils/randomNum';
+import randNum from './utils/randomNum';
 import posCalc from './utils/percentageCalc';
 
 export default class BonusHandler {
@@ -10,7 +10,7 @@ export default class BonusHandler {
     this.player = this.context.player;
     this.lowChance = 0;
     this.highChance = 100;
-    this.eventPoint = randomNum(10, 20);
+    this.eventPoint = randNum(10, 20);
 
     this.sprite = this.context.physics.add
       .sprite(this.spX, this.randomSPY(), 'sushi')
@@ -31,13 +31,12 @@ export default class BonusHandler {
   }
 
   randomSPY() {
-    return randomNum(this.spLowestY, this.spHighestY);
+    return randNum(this.spLowestY, this.spHighestY);
   }
 
   setEventPoint() {
     const { progress } = this.context;
-    this.eventPoint = Math.floor(progress + randomNum(this.lowChance, this.highChance));
-    console.log(this.eventPoint);
+    this.eventPoint = Math.floor(progress + randNum(this.lowChance, this.highChance));
   }
 
   update() {

@@ -3,9 +3,8 @@ export default class Player {
     this.context = scene;
     this.keys = keys;
     this.pointer = pointer;
-    this.activeBonus = false;
-    this.obstacles = this.context.obstacles;
-    console.log(this.obstacles)
+    this.availableBonus = false;
+    this.activatedBonus = false;
 
     const { anims } = this.context;
     anims.create({
@@ -22,37 +21,56 @@ export default class Player {
   }
 
   setBonus() {
-    this.activeBonus = true;
+    this.availableBonus = true;
+    this.sprite.setScale(0.7);
     // visual effect or sound to reflect bonus acquisition
   }
 
   unsetBonus() {
-    this.activeBonus = false;
+    this.availableBonus = false;
+    this.activatedBonus = false;
+    this.sprite.setScale(0.5);
   }
 
   stomp() {
-    const { sprite, obstacles } = this;
-    console.log('stomp')
-    sprite.body.touching.down ? sprite.setVelocityY(-500) : sprite.setVelocityY(700);
-    this.context.camera.shake(300, 0.02);
-    obstacles.stomp();
-
+    const { obstacles } = this.context;
     this.unsetBonus();
+    this.context.camera.shake(150, 0.03, true);
+    obstacles.stomp();
   }
 
   update() {
     const { sprite } = this;
-    const keyboardJump = this.keys.space.isDown && sprite.body.touching.down;
-    const touchJump = this.pointer.isDown
-      && this.pointer.x >= this.context.game.config.width / 2
-      && sprite.body.touching.down;
+    const onGround = sprite.body.touching.down;
 
-    if (this.activeBonus && this.keys.left.isDown) this.stomp();
+    const keyboardJump = this.keys.space.isDown && onGround;
+    const touchJump = this.pointer.isDown
+      && this.pointer.x > this.context.game.config.width / 2
+      && onGround;
+
+    const keyboardStomp = this.keys.down.isDown;
+    const touchStomp = this.pointer.isDown && this.pointer.x < this.context.game.config.width / 2;
+
+    if (this.availableBonus && (keyboardStomp || touchStomp)) {
+      const { obstacles } = this.context;
+      const velocity = onGround ? -700 : 500;
+      obstacles.setInvincible();
+      sprite.setVelocityY(velocity);
+      this.availableBonus = false;
+      this.context.time.delayedCall(200, () => {
+        this.activatedBonus = true;
+      });
+    }
+
+    if (this.activatedBonus && onGround) {
+      this.stomp();
+    }
 
     if (keyboardJump || touchJump) {
       sprite.setVelocityY(-1200);
     }
-    if (sprite.body.velocity.y === 0 && sprite.body.touching.down) {
+
+    if (sprite.body.velocity.y === 0 && onGround) {
       sprite.anims.play('player-run', true);
     } else {
       sprite.anims.stop();
