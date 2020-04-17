@@ -6,10 +6,15 @@ export default class ObstacleHandler {
     this.obstacles = this.context.physics.add.group();
     this.maxObstacles = 1;
     this.playerInvincible = false;
+    this.groundCollider = this.context.physics.add.collider(this.context.ground, this.obstacles);
   }
 
   getObstacles() {
     return this.obstacles;
+  }
+
+  getCollider() {
+    return this.groundCollider;
   }
 
   setMax(amount) {
@@ -25,9 +30,8 @@ export default class ObstacleHandler {
   }
 
   stomp() {
-    const { obstacleCollider } = this.context;
     this.obstacles.setVelocityY(-400);
-    obstacleCollider.active = false;
+    this.groundCollider.active = false;
   }
 
   updateObstacles() {
@@ -70,8 +74,7 @@ export default class ObstacleHandler {
     });
 
     this.context.physics.add.collider(obstacle, this.context.stompCatcher, (toad) => {
-      const { obstacleCollider } = this.context;
-      obstacleCollider.active = true;
+      this.groundCollider.active = true;
       const newSprite = randNum(0, 12);
       const newScale = randNum(50, 80) / 100;
       toad.body.reset(randNum(x, x + 500), y);
