@@ -1,12 +1,17 @@
 export default class Player {
   constructor(scene, x, y) {
     this.context = scene;
-    this.camera = this.context.cameras.main;
+    this.camera = scene.cameras.main;
+    this.input = scene.input;
+    this.obstacles = scene.obstacles.getObstacles();
+
     this.availableBonus = false;
     this.activatedBonus = false;
-    this.input = scene.input;
 
-    const { anims } = this.context;
+    this.jumpSFX = scene.sound.add('jumpSound', { volume: 0.7 });
+    this.stompSFX = scene.sound.add('stompSound', { volume: 0.4 });
+
+    const { anims } = scene;
     anims.create({
       key: 'player-run',
       frames: anims.generateFrameNumbers('chompusdev', { start: 0, end: 3 }),
@@ -14,12 +19,21 @@ export default class Player {
       repeat: -1,
     });
 
-    this.sprite = this.context.physics.add
+    this.sprite = scene.physics.add
       .sprite(x, y, 'chompusdev', 0)
-      .setScale(0.5)
-      .setAcceleration(0, 1200);
+      .setScale(0.5);
+    this.sprite.body.setAccelerationY(1600);
+    this.sprite.body.setSize(90, 70);
+    this.sprite.body.setOffset(20, 13);
 
-    this.groundCollider = this.context.physics.add.collider(this.context.ground, this.sprite);
+    this.groundCollider = scene.physics.add.collider(this.context.ground, this.sprite);
+
+    this.obstacleCollider = scene.physics.add.overlap(this.sprite, this.obstacles, () => {
+      const { score, highscore } = scene;
+      const newHighscore = score > highscore ? score : highscore;
+      this.context.setHighscore(newHighscore);
+      scene.scene.restart();
+    });
 
     this.input.keyboard.on('keydown-SPACE', () => this.activateBonus());
     this.keys = this.input.keyboard.addKeys({
@@ -28,14 +42,22 @@ export default class Player {
     });
   }
 
-  getCollider() {
-    return this.groundCollider;
-  }
-
   setBonus() {
     this.availableBonus = true;
-    this.sprite.setScale(0.7);
-    // visual effect or sound to reflect bonus acquisition
+    this.sprite.setScale(0.6);
+    // visual effect or and sound to reflect bonus acquisition
+  }
+
+  setInvincible() {
+    this.obstacleCollider.active = false;
+  }
+
+  unsetInvincible() {
+    this.obstacleCollider.active = true;
+  }
+
+  setSound() {
+    this.jumpsound = true;
   }
 
   unsetBonus() {
@@ -45,10 +67,11 @@ export default class Player {
   }
 
   jump() {
-    const { sprite } = this;
+    const { sprite, jumpSFX } = this;
     const onGround = sprite.body.touching.down;
     if (onGround) {
-      sprite.setVelocityY(-1200);
+      jumpSFX.play();
+      sprite.setVelocityY(-1400);
       sprite.anims.stop();
       sprite.setFrame(2);
     }
@@ -56,6 +79,7 @@ export default class Player {
 
   stomp() {
     const { obstacles } = this.context;
+    this.stompSFX.play();
     this.unsetBonus();
     this.camera.shake(150, 0.03, true);
     obstacles.stomp();
@@ -63,14 +87,13 @@ export default class Player {
 
   activateBonus() {
     if (this.availableBonus) {
-      const { obstacles } = this.context;
       const { sprite } = this;
       const onGround = sprite.body.touching.down;
       const velocity = onGround ? -700 : 500;
-      obstacles.setInvincible();
+      this.setInvincible();
       sprite.setVelocityY(velocity);
       this.availableBonus = false;
-      this.context.time.delayedCall(200, () => {
+      this.context.time.delayedCall(150, () => {
         this.activatedBonus = true;
       });
     }
@@ -80,6 +103,7 @@ export default class Player {
     const { sprite, input, keys } = this;
     const pointer = input.activePointer;
     const onGround = sprite.body.touching.down;
+
 
     if (pointer.isDown && pointer.y > 80) {
       pointer.x > this.context.game.config.width / 2 ? this.jump() : this.activateBonus();

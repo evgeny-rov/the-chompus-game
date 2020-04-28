@@ -4,45 +4,57 @@ import posCalc from './utils/percentageCalc';
 export default class BonusHandler {
   constructor(scene) {
     this.context = scene;
-    this.spX = this.context.spawnPoint.x;
-    this.spLowestY = this.context.playerSpawn.y - 70;
-    this.spHighestY = posCalc(15, this.context.game.config.height);
-    this.player = this.context.player;
-    this.lowChance = 0;
-    this.highChance = 100;
-    this.eventPoint = randNum(10, 20);
+    this.bonusSFX = scene.sound.add('getBonusSound', { volume: 0.4 });
+    this.spX = scene.spawnPoint.x;
+    this.spLowY = scene.playerSpawn.y - 70;
+    this.spHighY = posCalc(15, scene.game.config.height);
+    this.player = scene.player;
+    this.obstacles = scene.obstacles.getObstacles();
 
-    this.sprite = this.context.physics.add
-      .sprite(this.spX, this.randomSPY(), 'sushi')
+    this.allowSpawning = false;
+    this.lowChanceSpawn = 5000;
+    this.highChanceSpawn = 11000;
+
+    this.sprite = scene.physics.add
+      .sprite(this.spX, randNum(this.spLowY, this.spHighY), 'sushi')
       .setDisplaySize(50, 40);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setCircle(140, 0, 0);
+    this.sprite.setState('idle');
 
-    this.context.physics.add.overlap(this.sprite, this.context.catcher, (sushi, body) => {
-      this.setEventPoint();
-      sushi.setPosition(this.spX, this.randomSPY());
-    });
+    scene.physics.add.overlap(this.sprite, scene.catcher, () => this.bonusReset());
 
-    this.context.physics.add.overlap(this.sprite, this.player.sprite, (sushi, body) => {
-      this.setEventPoint();
-      sushi.setPosition(this.spX, this.randomSPY());
+    scene.physics.add.overlap(this.sprite, this.player.sprite, () => {
+      this.bonusSFX.play();
+      this.bonusReset();
       this.player.setBonus();
     });
+
+    scene.physics.add.overlap(this.sprite, this.obstacles, () => {
+      this.bonusReset();
+    });
   }
 
-  randomSPY() {
-    return randNum(this.spLowestY, this.spHighestY);
+  bonusReset() {
+    const { sprite, spX, spLowY, spHighY } = this;
+    sprite.setState('idle');
+    sprite.setPosition(spX, randNum(spLowY, spHighY));
   }
 
-  setEventPoint() {
-    const { progress } = this.context;
-    this.eventPoint = Math.floor(progress + randNum(this.lowChance, this.highChance));
+  handleSpawn() {
+    const { sprite, lowChanceSpawn, highChanceSpawn } = this;
+    sprite.setState('pending');
+    const nextSpawnTime = randNum(lowChanceSpawn, highChanceSpawn);
+    this.context.time.delayedCall(nextSpawnTime, () => sprite.setState('active'));
+  }
+
+  setSpawning(bool) {
+    this.allowSpawning = bool;
   }
 
   update() {
-    const { progress, speed } = this.context;
-    if (progress > this.eventPoint) {
-      this.sprite.x -= speed;
-    }
+    const { allowSpawning, sprite } = this;
+    if (allowSpawning && sprite.state === 'idle') this.handleSpawn();
+    if (sprite.state === 'active') sprite.x -= this.context.speed;
   }
 }

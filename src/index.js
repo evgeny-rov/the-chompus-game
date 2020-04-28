@@ -1,17 +1,14 @@
 import Phaser from 'phaser';
 import mainScene from './scenes/mainScene';
 
-const portable = /Mobi|Android/i.test(navigator.userAgent);
-
 const config = {
-  type: Phaser.CANVAS,
+  type: Phaser.WEBGL,
   width: 1024,
   height: 450,
   parent: 'game-container',
   scale: {
     mode: Phaser.Scale.FIT,
     autocenter: Phaser.Scale.CENTER_BOTH,
-    //autoRound: true,
   },
   input: {
     activePointers: 2,
@@ -25,8 +22,8 @@ const config = {
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 1500 },
-      debug: true,
+      gravity: { y: 1700 },
+      //debug: true,
     },
   },
 };
