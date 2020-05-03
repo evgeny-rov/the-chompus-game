@@ -1,5 +1,10 @@
 import Phaser from 'phaser';
 
+import uifs from '../assets/uifs.png';
+import uimenu from '../assets/uimenu.png';
+import fullscreenHandler from '../utils/fullscreenHandler';
+import menuHandler from '../utils/menuHandler';
+
 import jumpSound from '../assets/testjump.wav';
 import stompSound from '../assets/stomp.wav';
 import toadJumpSound from '../assets/toadjumps.wav';
@@ -37,11 +42,15 @@ export default class Level1 extends Phaser.Scene {
 
   preload() {
     spriteImporter(this);
+
     this.load.audio('jumpSound', jumpSound);
     this.load.audio('stompSound', stompSound);
     this.load.audio('toadJumpSound', toadJumpSound);
     this.load.audio('toadQuackSound', toadQuackSound);
     this.load.audio('getBonusSound', getBonusSound);
+
+    this.load.image('uifs', uifs);
+    this.load.image('uimenu', uimenu);
   }
 
   create() {
@@ -69,7 +78,6 @@ export default class Level1 extends Phaser.Scene {
     this.scoreCheck = shapeCreatorST(this, this.playerSpawn.x - 100, height / 2, 10, height, null, 0);
     this.catcher = shapeCreatorST(this, -200, height / 2, 10, height, null, 0);
     this.stompCatcher = shapeCreatorST(this, centerX, posCalc(130, height), width + 3000, 10, null, 0);
-    this.courseEntrance = shapeCreatorST(this, width, height / 2, 10, height, null, 0);
 
     // text content
     this.scoreText = this.add.text(centerX, posCalc(10, height), this.score, textStyle).setOrigin(0.5, 0).setAlpha(0.9);
@@ -80,6 +88,9 @@ export default class Level1 extends Phaser.Scene {
     this.player = new Player(this, this.playerSpawn.x, this.playerSpawn.y);
     this.sushi = new BonusHandler(this);
     this.obstacles.incObstacles(1);
+
+    fullscreenHandler(this);
+    menuHandler(this);
   }
 
   incScore() {
