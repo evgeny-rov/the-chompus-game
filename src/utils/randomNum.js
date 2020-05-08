@@ -1,3 +1,3 @@
-import Phaser from 'phaser';
+import { Math } from 'phaser';
 
-export default (min, max) => Phaser.Math.Between(min, max);
+export default (min, max) => Math.Between(min, max);

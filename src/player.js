@@ -1,17 +1,17 @@
 export default class Player {
-  constructor(scene, x, y) {
-    this.context = scene;
+  constructor(scene) {
+    this.ctx = scene;
     this.camera = scene.cameras.main;
     this.input = scene.input;
-    this.obstacles = scene.obstacles.getObstacles();
+    this.jumpSFX = scene.sound.add('jumpSound', { volume: 0.7 });
+    this.stompSFX = scene.sound.add('stompSound', { volume: 0.4 });
 
-    this.pressDuration = 0;
+    this.xPos = scene.game.config.width / 5;
+
+    this.obstacles = scene.obstacles.getObstacles();
 
     this.availableBonus = false;
     this.activatedBonus = false;
-
-    this.jumpSFX = scene.sound.add('jumpSound', { volume: 0.7 });
-    this.stompSFX = scene.sound.add('stompSound', { volume: 0.4 });
 
     const { anims } = scene;
     anims.create({
@@ -29,20 +29,16 @@ export default class Player {
     });
 
     this.sprite = scene.physics.add
-      .sprite(x, y, 'player', 0)
+      .sprite(this.xPos, -50, 'player', 0)
       .setScale(0.5);
     this.sprite.body.setAccelerationY(1600);
     this.sprite.body.setSize(105, 75);
     this.sprite.body.setOffset(50, 40);
-    this.sprite.setMaxVelocity(0, 1400);
 
     this.groundCollider = scene.physics.add.collider(scene.ground, this.sprite);
 
-    this.obstacleCollider = scene.physics.add.overlap(this.sprite, this.obstacles, () => {
-      const { score, highscore } = scene;
-      const newHighscore = score > highscore ? score : highscore;
-      this.context.setHighscore(newHighscore);
-      scene.scene.restart();
+    this.obstacleCollider = scene.physics.add.overlap(this.sprite, this.obstacles, (p, o) => {
+      if (p.state !== 'invincible') scene.gameOver();
     });
 
     this.input.keyboard.on('keydown-SPACE', () => this.activateBonus());
@@ -52,17 +48,17 @@ export default class Player {
     });
   }
 
-  setBonus() {
-    this.availableBonus = true;
-    this.sprite.setFrame(6);
-  }
-
   setInvincible() {
-    this.obstacleCollider.active = false;
+    this.sprite.setState('invincible');
   }
 
   unsetInvincible() {
-    this.obstacleCollider.active = true;
+    this.sprite.setState('idle');
+  }
+
+  setBonus() {
+    this.availableBonus = true;
+    this.sprite.setFrame(6);
   }
 
   unsetBonus() {
@@ -82,43 +78,46 @@ export default class Player {
     }
   }
 
-  stomp() {
-    const { obstacles } = this.context;
+  attack() {
+    const { obstacles } = this.ctx;
     this.stompSFX.play();
     this.unsetBonus();
     this.camera.shake(150, 0.03, true);
-    obstacles.stomp();
+    obstacles.kill();
   }
 
   activateBonus() {
-    if (this.availableBonus) {
-      const { sprite } = this;
+    const { ctx, availableBonus, sprite } = this;
+    if (availableBonus) {
+      this.setInvincible();
       const onGround = sprite.body.touching.down;
       const velocity = onGround ? -700 : 500;
-      this.setInvincible();
       sprite.body.setVelocityY(velocity);
       this.availableBonus = false;
-      this.context.time.delayedCall(150, () => {
+      ctx.time.delayedCall(150, () => {
         this.activatedBonus = true;
       });
     }
   }
 
+  reset() {
+    this.sprite.setPosition(this.xPos, -50);
+    this.unsetBonus();
+    this.unsetInvincible();
+  }
+
   update() {
-    const { input, keys, sprite, availableBonus } = this;
+    const { ctx, input, keys, sprite, availableBonus, activatedBonus } = this;
     const pointer = input.activePointer;
     const onGround = sprite.body.touching.down;
 
-
     if (pointer.isDown && pointer.y > 100) {
-      pointer.x > this.context.game.config.width / 2 ? this.jump() : this.activateBonus();
+      pointer.x > ctx.game.config.width / 2 ? this.jump() : this.activateBonus();
     }
 
     if (keys.up.isDown || keys.w.isDown) this.jump();
 
-    if (this.activatedBonus && onGround) {
-      this.stomp();
-    }
+    if (activatedBonus && onGround) this.attack();
 
     if (sprite.body.velocity.y === 0 && onGround) {
       const targetAnim = availableBonus ? 'special' : 'default';

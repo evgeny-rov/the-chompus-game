@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
-import mainScene from './scenes/mainScene';
+import GameScene from './scenes/GameScene';
+import MenuScene from './scenes/MenuScene';
+import GameoverScene from './scenes/GameoverScene';
 
 const config = {
   type: Phaser.WEBGL,
@@ -18,12 +20,12 @@ const config = {
     },
   },
   // pixelArt: true,
-  scene: mainScene,
+  scene: [MenuScene, GameScene, GameoverScene],
   physics: {
     default: 'arcade',
     arcade: {
       gravity: { y: 1700 },
-      //debug: true,
+      // debug: true,
     },
   },
 };
