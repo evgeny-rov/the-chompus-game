@@ -13,7 +13,7 @@ const config = {
     autocenter: Phaser.Scale.CENTER_BOTH,
   },
   input: {
-    activePointers: 2,
+    activePointers: 1,
     touch: {
       target: null,
       capture: false,

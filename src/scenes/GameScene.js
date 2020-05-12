@@ -71,15 +71,21 @@ export default class GameScene extends Scene {
     this.stompCatcher = addRectST(this, midX, height + 200, width + 3000, 1, null, 0);
 
     // text content
-    this.scoreText = this.add.text(midX, 50, this.score, textStyle).setOrigin(0.5, 0).setAlpha(0.9);
+    this.scoreText = this.add.text(midX, -50, this.score, textStyle).setOrigin(0.5, 0).setAlpha(0.9);
 
     // elements
     this.obstacles = new ObstacleHandler(this);
     this.player = new Player(this, this.playerSpawn.x, this.playerSpawn.y);
     this.bonus = new BonusHandler(this);
 
+    console.log(this.input)
+    this.input.mouse.capture = false;
+
     const fsButton = this.add.image(width - 50, 25, 'uifs').setInteractive();
-    fsButton.on('pointerup', () => toggleFullscreen());
+    fsButton.on('pointerup', (e) => {
+      fsButton.x = fsButton.x - 50;
+      console.log('click')
+    });
   }
 
   incScore() {
