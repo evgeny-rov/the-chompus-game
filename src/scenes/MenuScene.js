@@ -5,6 +5,9 @@ import fontTexture from '../assets/font.png';
 import fontXML from '../assets/font.fnt';
 import getTranslation from '../textContent';
 
+import atlasTextures from '../assets/atlas.png';
+import atlasJSON from '../assets/atlas.json';
+
 const text = getTranslation(navigator.language);
 
 export default class MenuScene extends Phaser.Scene {
@@ -15,6 +18,7 @@ export default class MenuScene extends Phaser.Scene {
   preload() {
     this.load.image('titlescreen', titleScreen);
     this.load.bitmapFont('pixfnt', fontTexture, fontXML);
+    // this.load.atlas('textures', atlasTextures, atlasJSON);
   }
 
   setInteractive(interactive) {
@@ -70,6 +74,8 @@ export default class MenuScene extends Phaser.Scene {
     const { width, height } = this.game.config;
     const gameScene = this.scene.get('gameScene');
     const { desktop } = this.sys.game.device.os;
+    const actionTxtByDevice = desktop ? text.help_action_kb : text.help_action_ts;
+    const useBonusTxtByDevice = desktop ? text.help_use_bonus_kb : text.help_use_bonus_ts;
 
     this.mainBtn = this.add.rectangle(width / 2, 200, width, 250, null, 0).setInteractive();
     this.helpBtn = this.add.rectangle(width / 2, 370, width / 4, 50, null, 0).setInteractive();
@@ -80,13 +86,12 @@ export default class MenuScene extends Phaser.Scene {
 
     const helpBG = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.5);
     const helpGetBonusTxt = this.add.bitmapText(width / 2, 150, 'pixfnt', text.help_bonus, 10, 1).setOrigin(0.5);
-    const helpActionTxt = this.add.bitmapText(width - 150, 300, 'pixfnt', text.help_action, 10, 1).setOrigin(0.5);
-    const helpUseBonusTxt = this.add.bitmapText(150, 300, 'pixfnt', text.help_use_bonus, 10, 1).setOrigin(0.5);
+    const helpActionTxt = this.add.bitmapText(width - 150, 300, 'pixfnt', actionTxtByDevice, 10, 1).setOrigin(0.5);
+    const helpUseBonusTxt = this.add.bitmapText(150, 300, 'pixfnt', useBonusTxtByDevice, 10, 1).setOrigin(0.5);
     const helpFS = this.add.bitmapText(width - 50, 70, 'pixfnt', text.help_fullscreen, 10, 1).setOrigin(0.5);
 
     const titleElements = [titleBanner, titlePlayTxt, titleHelpTxt];
     const helpElements = [helpBG, helpGetBonusTxt, helpActionTxt, helpUseBonusTxt, helpFS];
-    desktop && helpElements.push(this.add.bitmapText(width / 2, 100, 'pixfnt', 'on desktop', 10, 1).setOrigin(0.5));
 
     this.titleContainer = this.add.container(null, null, titleElements);
     this.helpContainer = this.add.container(null, null, helpElements).setVisible(false);

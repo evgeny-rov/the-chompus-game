@@ -16,6 +16,8 @@ import stompSound from '../assets/stomp.wav';
 import toadJumpSound from '../assets/toadjumps.wav';
 import toadQuackSound from '../assets/frogquack.mp3';
 import getBonusSound from '../assets/exit.wav';
+import gOverSound from '../assets/hurt.ogg';
+import playerDead from '../assets/death.png';
 
 export default (ctx) => {
   ctx.load.spritesheet('first', one, { frameWidth: 592, frameHeight: 272 });
@@ -25,6 +27,7 @@ export default (ctx) => {
 
   ctx.load.spritesheet('newground', groundv2, { frameWidth: 1024, frameHeight: 288 });
   ctx.load.spritesheet('player', player, { frameWidth: 198, frameHeight: 144 });
+  ctx.load.spritesheet('dead', playerDead, { frameWidth: 198, frameHeight: 144 });
   ctx.load.spritesheet('toadsdev', toadsdev, { frameWidth: 142, frameHeight: 110 });
   ctx.load.spritesheet('sushi', sushi, { frameWidth: 351, frameHeight: 273 });
 
@@ -33,6 +36,7 @@ export default (ctx) => {
   ctx.load.audio('toadJumpSound', toadJumpSound);
   ctx.load.audio('toadQuackSound', toadQuackSound);
   ctx.load.audio('getBonusSound', getBonusSound);
+  ctx.load.audio('goverSound', gOverSound);
 
   ctx.load.image('uifs', uifs);
   ctx.load.image('uimenu', uimenu);

@@ -13,12 +13,7 @@ const toggleFullscreen = () => (
     : document.exitFullscreen()
 );
 
-const textStyle = {
-  fontFamily: 'Lucida Console',
-  fontSize: '72px',
-  color: '#fff',
-  align: 'center',
-};
+const highscoreHandler = (score, highscore) => (score > highscore && localStorage.setItem('highscore', score));
 
 export default class GameScene extends Scene {
   constructor() {
@@ -71,21 +66,17 @@ export default class GameScene extends Scene {
     this.stompCatcher = addRectST(this, midX, height + 200, width + 3000, 1, null, 0);
 
     // text content
-    this.scoreText = this.add.text(midX, -50, this.score, textStyle).setOrigin(0.5, 0).setAlpha(0.9);
+    this.scoreText = this.add.bitmapText(midX, -50, 'pixfnt', this.score, 56, 1)
+      .setOrigin(0.5)
+      .setAlpha(0.8);
 
     // elements
     this.obstacles = new ObstacleHandler(this);
     this.player = new Player(this, this.playerSpawn.x, this.playerSpawn.y);
     this.bonus = new BonusHandler(this);
 
-    console.log(this.input)
-    this.input.mouse.capture = false;
-
     const fsButton = this.add.image(width - 50, 25, 'uifs').setInteractive();
-    fsButton.on('pointerup', (e) => {
-      fsButton.x = fsButton.x - 50;
-      console.log('click')
-    });
+    fsButton.on('pointerup', () => toggleFullscreen());
   }
 
   incScore() {
@@ -111,14 +102,31 @@ export default class GameScene extends Scene {
     this.stageHandler(7, 1, false, false);
     this.paused = false;
     this.physics.resume();
+    this.tweens.add({
+      targets: this.scoreText,
+      y: 100,
+      duration: 700,
+      ease: 'Bounce',
+    });
   }
 
   gameOver() {
-    this.paused = true;
-    this.physics.pause();
-    this.obstacles.setPlaying(false);
-    this.player.sprite.anims.pause();
-    this.scene.wake('gameoverScene');
+    if (!this.paused) {
+      this.paused = true;
+      this.obstacles.setPlaying(false);
+      this.player.sprite.anims.pause();
+      this.scoreText.setY(-50);
+      highscoreHandler(this.score, localStorage.getItem('highscore'));
+
+      this.sound.play('goverSound', { volume: 0.2 });
+      this.player.sprite.setTexture('dead');
+      this.player.sprite.setVelocityY(-1000);
+
+      this.time.delayedCall(200, () => {
+        this.physics.pause();
+        this.scene.wake('gameoverScene');
+      });
+    }
   }
 
   resetGame() {
