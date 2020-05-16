@@ -6,31 +6,34 @@ import addRectST from '../utils/rectCreatorST';
 import ObstacleHandler from '../ObstacleHandler';
 import Player from '../player';
 import BonusHandler from '../BonusHandler';
+import NotSecretStage from '../NotSecretStage';
 
-const toggleFullscreen = () => (
-  !document.fullscreenElement
-    ? document.documentElement.requestFullscreen()
-    : document.exitFullscreen()
-);
+const toggleFullscreen = () => {
+  const isInFullscreen = document.fullscreenElement;
+  return isInFullscreen
+    ? document.exitFullscreen()
+    : document.documentElement.requestFullscreen();
+};
 
 const highscoreHandler = (score, highscore) => (score > highscore && localStorage.setItem('highscore', score));
 
 export default class GameScene extends Scene {
   constructor() {
-    super({ key: 'gameScene', active: true });
-    this.highscore = 0;
-    this.stages = {
-      3: () => this.stageHandler(8, 2, false, false),
-      10: () => this.stageHandler(9, 2),
-      20: () => this.stageHandler(10, 3),
-      50: () => this.stageHandler(12, 3),
-      70: () => this.stageHandler(15, 3),
-    };
-    this.stagesList = Object.keys(this.stages);
+    super({ key: 'gameScene', active: false });
+
+    this.stages = new Map([
+      [3, () => this.stageHandler(8, 2, false, false)],
+      [10, () => this.stageHandler(9, 2)],
+      [20, () => this.stageHandler(10, 3)],
+      [50, () => this.stageHandler(12, 3)],
+      [70, () => this.stageHandler(15, 3)],
+      ['notsecret', () => this.notSecretStage.sprite.emit('play')],
+    ]);
   }
 
   preload() {
     gameScenePreloader(this);
+    this.scene.launch('gameoverScene');
   }
 
   init() {
@@ -43,7 +46,11 @@ export default class GameScene extends Scene {
     this.targetSpeed = 7;
     this.speed = 2;
     this.score = 0;
+    this.progress = 0;
     this.paused = false;
+    this.positiveSnd = this.sound.add('positive', { volume: 0.5 });
+    this.negativeSnd = this.sound.add('negative', { volume: 0.5 });
+    this.gOverSnd = this.sound.add('g-over', { volume: 0.5 });
 
     const { width, height } = this.game.config;
     const midX = width / 2;
@@ -68,27 +75,50 @@ export default class GameScene extends Scene {
     // text content
     this.scoreText = this.add.bitmapText(midX, -50, 'pixfnt', this.score, 56, 1)
       .setOrigin(0.5)
-      .setAlpha(0.8);
+      .setVisible(false);
 
     // elements
+    this.notSecretStage = new NotSecretStage(this);
     this.obstacles = new ObstacleHandler(this);
     this.player = new Player(this, this.playerSpawn.x, this.playerSpawn.y);
     this.bonus = new BonusHandler(this);
 
     const fsButton = this.add.image(width - 50, 25, 'uifs').setInteractive();
-    fsButton.on('pointerup', () => toggleFullscreen());
+    fsButton.on('pointerup', () => {
+      fsButton.disableInteractive();
+      toggleFullscreen();
+      this.time.delayedCall(500, () => fsButton.setInteractive());
+    });
+
+    this.scoreJiggle = this.tweens.add({
+      targets: [this.scoreText],
+      duration: 400,
+      alpha: { from: 0, to: 0.8 },
+      y: { from: 85, to: 100 },
+      ease: 'Bounce',
+      onStart: () => {
+        this.scoreText.setY(-75);
+        this.scoreText.setAlpha(0);
+      },
+    });
   }
 
-  incScore() {
-    const { stages, stagesList } = this;
-    this.score += 1;
+  setScore(num = 1, toIncrement = true) {
+    const newScore = toIncrement ? this.score + num : this.score - num;
+    if (newScore >= 0) this.score = newScore;
     this.scoreText.setText(`${this.score}`);
-    const hasStage = stagesList.includes(this.score.toString());
-    if (hasStage) stages[this.score](this.score);
+    if (this.score % 10 === 0 && toIncrement) {
+      this.positiveSnd.play();
+      this.scoreJiggle.restart();
+    }
   }
 
-  setHighscore(num) {
-    this.highscore = num;
+  incProgress() {
+    const { stages } = this;
+    this.progress += 1;
+    this.setScore();
+    const nextStage = stages.get(this.progress);
+    return nextStage && nextStage();
   }
 
   stageHandler(speed, amount, toPlay = true, bonusInteractive = true) {
@@ -102,34 +132,30 @@ export default class GameScene extends Scene {
     this.stageHandler(7, 1, false, false);
     this.paused = false;
     this.physics.resume();
-    this.tweens.add({
-      targets: this.scoreText,
-      y: 100,
-      duration: 700,
-      ease: 'Bounce',
-    });
+    this.scoreText.setVisible(true);
+    this.scoreJiggle.restart();
   }
 
   gameOver() {
-    if (!this.paused) {
-      this.paused = true;
-      this.obstacles.setPlaying(false);
-      this.player.sprite.anims.pause();
-      this.scoreText.setY(-50);
-      highscoreHandler(this.score, localStorage.getItem('highscore'));
+    this.paused = true;
+    this.obstacles.setPlaying(false);
+    this.bonus.setInteractive(false);
+    this.player.sprite.anims.pause();
+    highscoreHandler(this.score, localStorage.getItem('highscore'));
 
-      this.sound.play('goverSound', { volume: 0.2 });
-      this.player.sprite.setTexture('dead');
-      this.player.sprite.setVelocityY(-1000);
+    this.gOverSnd.play();
+    this.player.sprite.setTexture('dead');
+    this.player.sprite.setVelocityY(-1000);
+    this.scoreText.setVisible(false);
 
-      this.time.delayedCall(200, () => {
-        this.physics.pause();
-        this.scene.wake('gameoverScene');
-      });
-    }
+    this.time.delayedCall(200, () => {
+      this.physics.pause();
+      this.scene.wake('gameoverScene');
+    }, null, this);
   }
 
   resetGame() {
+    this.progress = 0;
     this.score = 0;
     this.scoreText.setText(`${this.score}`);
     this.speed = 2;
@@ -147,9 +173,9 @@ export default class GameScene extends Scene {
     this.groundBg.tilePositionX += this.speed;
 
     if (!this.paused) {
-      this.obstacles.getObstacles().incX(-this.speed);
       this.player.update();
       this.bonus.update();
+      this.obstacles.update();
     }
   }
 }

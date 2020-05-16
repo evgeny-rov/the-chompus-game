@@ -5,7 +5,7 @@ import getTranslation from '../textContent';
 
 export default class GameoverScene extends Phaser.Scene {
   constructor() {
-    super({ key: 'gameoverScene', active: true });
+    super({ key: 'gameoverScene', active: false });
   }
 
   preload() {
@@ -13,7 +13,7 @@ export default class GameoverScene extends Phaser.Scene {
   }
 
   init() {
-    console.log('init')
+    this.scene.sleep();
   }
 
   wake() {
@@ -69,7 +69,5 @@ export default class GameoverScene extends Phaser.Scene {
       cardHsTxt.setText(`highscore ${newHighscore}`);
       this.wake();
     });
-
-    this.scene.sleep();
   }
 }

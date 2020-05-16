@@ -19,6 +19,7 @@ export default class MenuScene extends Phaser.Scene {
     this.load.image('titlescreen', titleScreen);
     this.load.bitmapFont('pixfnt', fontTexture, fontXML);
     // this.load.atlas('textures', atlasTextures, atlasJSON);
+    this.scene.launch('gameScene');
   }
 
   setInteractive(interactive) {
