@@ -4,48 +4,56 @@ export default class ObstacleHandler {
   constructor(scene) {
     this.ctx = scene;
     this.obstacles = scene.physics.add.group();
-    this.preactionSnd = scene.sound.add('obstacle-preaction', { volume: 0.5 });
-    this.actionSnd = scene.sound.add('obstacle-action', { volume: 0.5 });
+    this.preactionSnd = scene.sound.add('obstacle-preaction', { volume: 0.4 });
+    this.actionSnd = scene.sound.add('obstacle-action', { volume: 0.3 });
 
     this.spX = scene.game.config.width + 200;
     this.spY = scene.game.config.height / 1.4;
-
-    this.paused = false;
-
+    this.moving = true;
     this.eventTimer = scene.time.addEvent({ delay: 3000, paused: true, loop: true, callback: this.handleEvent.bind(this) });
 
     this.groundCollider = scene.physics.add.collider(this.obstacles, scene.ground);
 
-    this.scoreCollider = scene.physics.add.collider(this.obstacles, scene.scoreCheck, (s, toad) => {
-      if (toad.state !== 'inactive') {
+    this.scoreCollider = scene.physics.add.collider(this.obstacles, scene.scoreCheck, (s, obst) => {
+      if (obst.state !== 'processed') {
         scene.incProgress();
-        toad.setState('inactive');
+        obst.setState('processed');
       }
     });
 
-    this.bounds = scene.physics.add.collider(this.obstacles, scene.catcher, (ctch, toad) => {
-      this.cycle(toad);
+    this.bounds = scene.physics.add.collider(this.obstacles, scene.catcher, (ctch, obst) => {
+      this.cycle(obst);
     });
 
-    this.spreader = scene.physics.add.overlap(this.obstacles, this.obstacles, (toad) => {
+    this.spreader = scene.physics.add.overlap(this.obstacles, this.obstacles, (obst) => {
       const { spX } = this;
-      toad.setX(randNum(spX, spX + 650));
+      obst.setX(randNum(spX, spX + 650));
     });
 
-    scene.physics.add.collider(this.obstacles, scene.stompCatcher, (ctch, toad) => {
-      toad.setState('killed');
+    scene.physics.add.collider(this.obstacles, scene.stompCatcher, (ctch, obst) => {
+      obst.setState('killed');
       const allKilled = this.obstacles.getChildren().every((o) => o.state === 'killed');
-      if (allKilled) {
-        this.groundCollider.active = true;
-        this.scoreCollider.active = true;
-        this.bounds.active = true;
-        this.obstacles.getChildren().forEach((o) => {
-          this.cycle(o);
-        });
-        this.eventTimer.paused = false;
+      if (allKilled && this.moving) {
+        this.toggleColliders(true);
         scene.player.unsetInvincible();
+        this.obstacles.getChildren().forEach((o) => this.cycle(o));
+        this.setActive(true);
       }
     });
+
+    scene.events.on('secret', () => {
+      this.kill();
+      this.moving = false;
+    });
+    scene.events.on('secretover', () => {
+      this.moving = true;
+    });
+  }
+
+  toggleColliders(active) {
+    this.groundCollider.active = active;
+    this.scoreCollider.active = active;
+    this.bounds.active = active;
   }
 
   getObstacles() {
@@ -56,27 +64,22 @@ export default class ObstacleHandler {
     this.obstacles.clear(true, true);
   }
 
-  setPlaying(toPlay) {
-    const pause = !toPlay;
-    this.eventTimer.paused = pause;
+  setActive(active) {
+    this.eventTimer.paused = !active;
   }
 
-  setPause(pause) {
-    this.paused = pause;
-  }
-
-  cycle(obs) {
+  cycle(obst) {
     const { spX, spY } = this;
     const newSprite = randNum(0, 12);
     const newScale = randNum(50, 80) / 100;
-    const nextState = newSprite === 0 ? 'special' : 'active';
+    const nextState = newSprite === 0 ? 'special' : 'default';
     const xPos = randNum(spX, spX + 650);
-    const target = obs || this.ctx.physics.add.sprite(xPos, spY, 'toadsdev');
+    const target = obst || this.ctx.physics.add.sprite(xPos, spY, 'toadsdev');
     target.setScale(newScale);
     target.setFrame(newSprite);
     target.setState(nextState);
 
-    if (!obs) {
+    if (!obst) {
       target.body.setSize(90, 55);
       target.body.setOffset(15, 50);
     } else {
@@ -101,21 +104,19 @@ export default class ObstacleHandler {
         this.actionSnd.play();
         this.obstacles.getChildren()
           .forEach((obs) => obs.body.x < this.spX && obs.setVelocityY(-800));
-        this.eventTimer.delay = randNum(5000, 7000);
+        this.eventTimer.delay = randNum(5000, 8000);
       }
     }, null, this);
   }
 
   kill() {
     this.obstacles.setVelocityY(-400);
-    this.eventTimer.paused = true;
-    this.groundCollider.active = false;
-    this.scoreCollider.active = false;
-    this.bounds.active = false;
+    this.setActive(false);
+    this.toggleColliders(false);
   }
 
   update() {
     const { speed } = this.ctx;
-    return !this.paused && this.obstacles.incX(-speed);
+    return this.moving && this.obstacles.incX(-speed);
   }
 }

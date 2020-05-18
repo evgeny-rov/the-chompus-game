@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import { Scene } from 'phaser';
 import titleScreen from '../assets/titlescreen.png';
 
 import fontTexture from '../assets/font.png';
@@ -10,7 +10,7 @@ import atlasJSON from '../assets/atlas.json';
 
 const text = getTranslation(navigator.language);
 
-export default class MenuScene extends Phaser.Scene {
+export default class MenuScene extends Scene {
   constructor() {
     super({ key: 'menuScene' });
   }

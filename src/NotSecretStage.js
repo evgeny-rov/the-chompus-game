@@ -5,10 +5,8 @@ export default class NotSecretStage {
     this.ctx = scene;
 
     this.actionSnd = scene.sound.add('not-secret', { volume: 0.2 });
-
     this.played = false;
-    this.minTriggerScore = 40;
-    this.maxTriggerScore = 60;
+    this.startAllowed = false;
 
     const { anims } = scene;
     anims.create({
@@ -21,46 +19,57 @@ export default class NotSecretStage {
     this.sprite = scene.add.sprite(-200, 215).setScale(1.5).setVisible(false);
     this.sprite.anims.play('kanakodef', true);
 
-    this.endStage = scene.tweens.add({
+    scene.events.on('secret', () => !this.played && this.startStage());
+  }
+
+  endStage() {
+    const { ctx } = this;
+    ctx.tweens.add({
       targets: [this.sprite],
       delay: 2000,
-      duration: 3000,
+      duration: 2000,
       x: { from: 512, to: 1224 },
       ease: 'Linear',
-      paused: true,
       onStart: () => {
-        const inc = randNum(0, 1) === 1;
-        this.ctx.setScore(10, inc);
-        const sound = inc ? 'positive' : 'negative';
-        this.ctx.sound.play(sound, { detune: 400 });
+        const toAdd = randNum(0, 1) === 1;
+        this.ctx.setScore(10, toAdd);
+        const sound = toAdd ? 'positive' : 'negative';
+        this.ctx.sound.play(sound, { detune: 400, volume: 0.4 });
       },
       onComplete: () => {
         this.sprite.setVisible(false);
-        this.ctx.obstacles.setPause(false);
-        this.ctx.player.unsetInvincible();
+        this.sprite.setX(-200);
+        ctx.events.emit('secretover');
       },
     });
+  }
 
-    this.startStage = scene.tweens.add({
+  startStage() {
+    const { ctx, actionSnd } = this;
+    this.played = true;
+    this.startAllowed = false;
+    actionSnd.play();
+    this.sprite.setVisible(true);
+
+    ctx.tweens.add({
       targets: [this.sprite],
       duration: 3000,
       x: { from: -200, to: 512 },
       ease: 'Linear',
-      paused: true,
-      onStart: () => {
-        this.actionSnd.play();
-        this.sprite.setVisible(true);
-        this.played = true;
-        this.ctx.obstacles.setPause(true);
-        this.ctx.obstacles.kill();
-        this.ctx.player.setInvincible();
-      },
-      onComplete: () => this.endStage.play(),
+      onComplete: () => this.endStage(),
     });
   }
 
-  check(score) {
-    const { minTriggerScore, maxTriggerScore, played } = this;
-    if (!played && score >= minTriggerScore && score <= maxTriggerScore) this.startStage.play();
+  setActive(active) {
+    this.startAllowed = active;
+  }
+
+  try() {
+    return this.startAllowed;
+  }
+
+  reset() {
+    this.played = false;
+    this.startAllowed = false;
   }
 }

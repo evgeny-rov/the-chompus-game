@@ -28,6 +28,7 @@ const config = {
       //debug: true,
     },
   },
+  backgroundColor: 0xda5e53,
 };
 
 const game = new Phaser.Game(config);

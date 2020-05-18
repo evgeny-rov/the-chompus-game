@@ -2,33 +2,18 @@ import { Scene } from 'phaser';
 
 import gameScenePreloader from '../utils/gameScenePreloader';
 import addRectST from '../utils/rectCreatorST';
+import stagesConfig from '../stagesConfig';
+import toggleFullscreen from '../utils/fullscreenHandler';
+import highscoreHandler from '../utils/highscoreHandler';
 
 import ObstacleHandler from '../ObstacleHandler';
-import Player from '../player';
+import PlayerHandler from '../PlayerHandler';
 import BonusHandler from '../BonusHandler';
 import NotSecretStage from '../NotSecretStage';
-
-const toggleFullscreen = () => {
-  const isInFullscreen = document.fullscreenElement;
-  return isInFullscreen
-    ? document.exitFullscreen()
-    : document.documentElement.requestFullscreen();
-};
-
-const highscoreHandler = (score, highscore) => (score > highscore && localStorage.setItem('highscore', score));
 
 export default class GameScene extends Scene {
   constructor() {
     super({ key: 'gameScene', active: false });
-
-    this.stages = new Map([
-      [3, () => this.stageHandler(8, 2, false, false)],
-      [10, () => this.stageHandler(9, 2)],
-      [20, () => this.stageHandler(10, 3)],
-      [50, () => this.stageHandler(12, 3)],
-      [70, () => this.stageHandler(15, 3)],
-      ['notsecret', () => this.notSecretStage.sprite.emit('play')],
-    ]);
   }
 
   preload() {
@@ -48,9 +33,9 @@ export default class GameScene extends Scene {
     this.score = 0;
     this.progress = 0;
     this.paused = false;
-    this.positiveSnd = this.sound.add('positive', { volume: 0.5 });
-    this.negativeSnd = this.sound.add('negative', { volume: 0.5 });
-    this.gOverSnd = this.sound.add('g-over', { volume: 0.5 });
+    this.positiveSnd = this.sound.add('positive', { volume: 0.3 });
+    this.negativeSnd = this.sound.add('negative', { volume: 0.2 });
+    this.gOverSnd = this.sound.add('g-over', { volume: 0.4 });
 
     const { width, height } = this.game.config;
     const midX = width / 2;
@@ -60,7 +45,6 @@ export default class GameScene extends Scene {
     this.playerSpawn = { x: width / 5, y: height / 1.4 };
 
     // backgrounds
-    this.bg4 = this.add.tileSprite(midX, prlxBGY, 480, 272, 'fourth').setDisplaySize(width, height);
     this.bg3 = this.add.tileSprite(midX, prlxBGY, 592, 272, 'third').setDisplaySize(width, height);
     this.bg2 = this.add.tileSprite(midX, prlxBGY, 592, 272, 'second').setDisplaySize(width, height);
     this.bg1 = this.add.tileSprite(midX, prlxBGY, 700, 272, 'first').setDisplaySize(width, height);
@@ -78,9 +62,9 @@ export default class GameScene extends Scene {
       .setVisible(false);
 
     // elements
-    this.notSecretStage = new NotSecretStage(this);
     this.obstacles = new ObstacleHandler(this);
-    this.player = new Player(this, this.playerSpawn.x, this.playerSpawn.y);
+    this.notSecretStage = new NotSecretStage(this);
+    this.player = new PlayerHandler(this);
     this.bonus = new BonusHandler(this);
 
     const fsButton = this.add.image(width - 50, 25, 'uifs').setInteractive();
@@ -96,11 +80,21 @@ export default class GameScene extends Scene {
       alpha: { from: 0, to: 0.8 },
       y: { from: 85, to: 100 },
       ease: 'Bounce',
-      onStart: () => {
-        this.scoreText.setY(-75);
-        this.scoreText.setAlpha(0);
-      },
     });
+  }
+
+  stageHandler(config) {
+    const type = config[0];
+    if (type === 1) {
+      const [, notSecretActive] = config;
+      this.notSecretStage.setActive(notSecretActive);
+    } else {
+      const [, speed, obsAmount, obsActive, bonusInteractive] = config;
+      this.targetSpeed = speed;
+      this.obstacles.setObstacles(obsAmount);
+      this.obstacles.setActive(obsActive);
+      this.bonus.setInteractive(bonusInteractive);
+    }
   }
 
   setScore(num = 1, toIncrement = true) {
@@ -114,23 +108,15 @@ export default class GameScene extends Scene {
   }
 
   incProgress() {
-    const { stages } = this;
     this.progress += 1;
     this.setScore();
-    const nextStage = stages.get(this.progress);
-    return nextStage && nextStage();
-  }
-
-  stageHandler(speed, amount, toPlay = true, bonusInteractive = true) {
-    this.targetSpeed = speed;
-    this.obstacles.setObstacles(amount);
-    this.obstacles.setPlaying(toPlay);
-    this.bonus.setInteractive(bonusInteractive);
+    const nextStage = stagesConfig.get(this.progress);
+    return nextStage && this.stageHandler(nextStage);
   }
 
   startGame() {
-    this.stageHandler(7, 1, false, false);
     this.paused = false;
+    this.stageHandler(stagesConfig.get(0));
     this.physics.resume();
     this.scoreText.setVisible(true);
     this.scoreJiggle.restart();
@@ -138,14 +124,12 @@ export default class GameScene extends Scene {
 
   gameOver() {
     this.paused = true;
-    this.obstacles.setPlaying(false);
+    this.obstacles.setActive(false);
     this.bonus.setInteractive(false);
-    this.player.sprite.anims.pause();
+    this.player.kill();
     highscoreHandler(this.score, localStorage.getItem('highscore'));
 
     this.gOverSnd.play();
-    this.player.sprite.setTexture('dead');
-    this.player.sprite.setVelocityY(-1000);
     this.scoreText.setVisible(false);
 
     this.time.delayedCall(200, () => {
@@ -156,12 +140,13 @@ export default class GameScene extends Scene {
 
   resetGame() {
     this.progress = 0;
+    this.speed = 2;
     this.score = 0;
     this.scoreText.setText(`${this.score}`);
-    this.speed = 2;
     this.player.reset();
     this.obstacles.reset();
     this.bonus.reset();
+    this.notSecretStage.reset();
   }
 
   update() {

@@ -39,13 +39,14 @@ export default class Player {
     this.groundCollider = scene.physics.add.collider(scene.ground, this.sprite);
 
     this.obstacleCollider = scene.physics.add.overlap(this.sprite, this.obstacles, (p, o) => {
-      if (o.state === 'special') {
-        this.ctx.negativeSnd.play();
-        this.ctx.setScore(1, false);
-        this.ctx.notSecretStage.check(this.ctx.score);
-        return this.obstacleHandler.cycle(o);
+      if (o.state !== 'special') {
+        o.disableBody();
+        return scene.gameOver();
       }
-      return scene.gameOver();
+      this.ctx.negativeSnd.play();
+      this.ctx.setScore(1, false);
+      this.obstacleHandler.cycle(o);
+      return this.ctx.notSecretStage.try() && scene.events.emit('secret');
     });
 
     this.input.keyboard.on('keydown-SPACE', () => this.activateBonus());
@@ -53,6 +54,8 @@ export default class Player {
       up: 'up',
       w: 'W',
     });
+
+    scene.events.on('secret', () => this.setInvincible());
   }
 
   setInvincible() {
@@ -91,12 +94,12 @@ export default class Player {
     this.unsetBonus();
     this.camera.shake(150, 0.03, true);
     obstacles.kill();
+    this.ctx.incProgress();
   }
 
   activateBonus() {
     const { ctx, availableBonus, sprite } = this;
     if (availableBonus) {
-      ctx.incProgress();
       this.setInvincible();
       const onGround = sprite.body.touching.down;
       const velocity = onGround ? -700 : 500;
@@ -112,6 +115,12 @@ export default class Player {
     this.sprite.setPosition(this.xPos, -50);
     this.unsetBonus();
     this.unsetInvincible();
+  }
+
+  kill() {
+    this.sprite.anims.pause();
+    this.sprite.setTexture('dead');
+    this.sprite.setVelocityY(-1000);
   }
 
   update() {

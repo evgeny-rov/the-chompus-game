@@ -1,9 +1,9 @@
-import Phaser from 'phaser';
+import { Scene } from 'phaser';
 import gameoverCard from '../assets/gameovercard.png';
 
 import getTranslation from '../textContent';
 
-export default class GameoverScene extends Phaser.Scene {
+export default class GameoverScene extends Scene {
   constructor() {
     super({ key: 'gameoverScene', active: false });
   }
@@ -64,7 +64,7 @@ export default class GameoverScene extends Phaser.Scene {
     this.button.on('pointerup', () => this.sleep(gameScene));
 
     this.events.on('wake', () => {
-      const newHighscore = localStorage.getItem('highscore') || 0;
+      const newHighscore = localStorage.getItem('chompusHiscore') || 0;
       cardScoreTxt.setText(gameScene.score);
       cardHsTxt.setText(`highscore ${newHighscore}`);
       this.wake();

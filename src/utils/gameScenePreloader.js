@@ -1,4 +1,3 @@
-import four from '../assets/layers/4.png';
 import three from '../assets/layers/3.png';
 import two from '../assets/layers/2.png';
 import one from '../assets/layers/1.png';
@@ -27,7 +26,6 @@ export default (ctx) => {
   ctx.load.spritesheet('first', one, { frameWidth: 592, frameHeight: 272 });
   ctx.load.spritesheet('second', two, { frameWidth: 592, frameHeight: 272 });
   ctx.load.spritesheet('third', three, { frameWidth: 592, frameHeight: 272 });
-  ctx.load.spritesheet('fourth', four, { frameWidth: 480, frameHeight: 272 });
   ctx.load.spritesheet('newground', groundv2, { frameWidth: 1024, frameHeight: 288 });
   ctx.load.spritesheet('player', player, { frameWidth: 198, frameHeight: 144 });
   ctx.load.spritesheet('dead', playerDead, { frameWidth: 198, frameHeight: 144 });

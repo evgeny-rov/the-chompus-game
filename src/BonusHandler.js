@@ -13,8 +13,6 @@ export default class BonusHandler {
     this.obstacles = scene.obstacles.getObstacles();
 
     this.eventTimer = scene.time.addEvent({ delay: 5000, paused: true, loop: true, callback: this.handleEvent.bind(this) });
-
-    this.interactive = false;
     this.loSpwnProb = 7000;
     this.hiSpwnProb = 11000;
 
