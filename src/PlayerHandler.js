@@ -1,3 +1,11 @@
+const playerKillTexture = 'p00';
+const playerDefTexturePrefix = 'pd0';
+const playerSpecTexturePrefix = 'ps0';
+const playerDefTexture = 'pd01';
+const playerDefJumpTexture = 'pd03';
+const playerSpecJumpTexture = 'ps03';
+const specialObstacle = 'obs00';
+
 export default class Player {
   constructor(scene) {
     this.ctx = scene;
@@ -16,21 +24,29 @@ export default class Player {
 
     const { anims } = scene;
     anims.create({
-      key: 'default',
-      frames: anims.generateFrameNumbers('player', { start: 0, end: 3 }),
+      key: 'player_def',
+      frames: anims.generateFrameNames('textures', {
+        prefix: playerDefTexturePrefix,
+        start: 1,
+        end: 4,
+      }),
       frameRate: 14,
       repeat: -1,
     });
 
     anims.create({
-      key: 'special',
-      frames: anims.generateFrameNumbers('player', { start: 4, end: 7 }),
+      key: 'player_spec',
+      frames: anims.generateFrameNames('textures', {
+        prefix: playerSpecTexturePrefix,
+        start: 1,
+        end: 4,
+      }),
       frameRate: 14,
       repeat: -1,
     });
 
     this.sprite = scene.physics.add
-      .sprite(this.xPos, -50, 'player', 0)
+      .sprite(this.xPos, -50, 'textures', playerDefTexture)
       .setScale(0.5);
     this.sprite.body.setAccelerationY(1600);
     this.sprite.body.setSize(105, 75);
@@ -39,14 +55,14 @@ export default class Player {
     this.groundCollider = scene.physics.add.collider(scene.ground, this.sprite);
 
     this.obstacleCollider = scene.physics.add.overlap(this.sprite, this.obstacles, (p, o) => {
-      if (o.state !== 'special') {
-        o.disableBody();
-        return scene.gameOver();
+      if (o.frame.name === specialObstacle) {
+        this.ctx.negativeSnd.play();
+        this.ctx.setScore(1, false);
+        this.obstacleHandler.cycle(o);
+        return this.ctx.notSecretStage.try();
       }
-      this.ctx.negativeSnd.play();
-      this.ctx.setScore(1, false);
-      this.obstacleHandler.cycle(o);
-      return this.ctx.notSecretStage.try() && scene.events.emit('secret');
+      o.disableBody();
+      return scene.gameOver();
     });
 
     this.input.keyboard.on('keydown-SPACE', () => this.activateBonus());
@@ -68,7 +84,7 @@ export default class Player {
 
   setBonus() {
     this.availableBonus = true;
-    this.sprite.setFrame(6);
+    this.sprite.setFrame(playerSpecJumpTexture);
   }
 
   unsetBonus() {
@@ -79,7 +95,7 @@ export default class Player {
   jump() {
     const { jumpSnd, sprite, availableBonus } = this;
     const onGround = sprite.body.touching.down;
-    const targetFrame = !availableBonus ? 2 : 6;
+    const targetFrame = !availableBonus ? playerDefJumpTexture : playerSpecJumpTexture;
     if (onGround) {
       jumpSnd.play();
       sprite.setVelocityY(-1400);
@@ -113,13 +129,14 @@ export default class Player {
 
   reset() {
     this.sprite.setPosition(this.xPos, -50);
+    this.sprite.setFrame(playerDefTexture);
     this.unsetBonus();
     this.unsetInvincible();
   }
 
   kill() {
     this.sprite.anims.pause();
-    this.sprite.setTexture('dead');
+    this.sprite.setFrame(playerKillTexture);
     this.sprite.setVelocityY(-1000);
   }
 
@@ -138,7 +155,7 @@ export default class Player {
     if (activatedBonus && onGround) this.attack();
 
     if (sprite.body.velocity.y === 0 && onGround) {
-      const targetAnim = availableBonus ? 'special' : 'default';
+      const targetAnim = availableBonus ? 'player_spec' : 'player_def';
       sprite.anims.play(targetAnim, true);
     }
   }

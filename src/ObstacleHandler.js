@@ -1,4 +1,7 @@
 import randNum from './utils/randomNum';
+import getRandomFrame from './utils/getRandomFrame';
+
+const texturePrefix = 'obs';
 
 export default class ObstacleHandler {
   constructor(scene) {
@@ -70,14 +73,13 @@ export default class ObstacleHandler {
 
   cycle(obst) {
     const { spX, spY } = this;
-    const newSprite = randNum(0, 12);
-    const newScale = randNum(50, 80) / 100;
-    const nextState = newSprite === 0 ? 'special' : 'default';
     const xPos = randNum(spX, spX + 650);
-    const target = obst || this.ctx.physics.add.sprite(xPos, spY, 'toadsdev');
+    const target = obst || this.ctx.physics.add.sprite(xPos, spY, 'textures');
+    const newSprite = getRandomFrame(texturePrefix, 0, 16);
+    const newScale = randNum(50, 80) / 100;
     target.setScale(newScale);
     target.setFrame(newSprite);
-    target.setState(nextState);
+    target.setState('default');
 
     if (!obst) {
       target.body.setSize(90, 55);

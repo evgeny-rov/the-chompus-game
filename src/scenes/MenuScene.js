@@ -1,25 +1,11 @@
 import { Scene } from 'phaser';
-import titleScreen from '../assets/titlescreen.png';
-
-import fontTexture from '../assets/font.png';
-import fontXML from '../assets/font.fnt';
 import getTranslation from '../textContent';
-
-import atlasTextures from '../assets/atlas.png';
-import atlasJSON from '../assets/atlas.json';
 
 const text = getTranslation(navigator.language);
 
 export default class MenuScene extends Scene {
   constructor() {
-    super({ key: 'menuScene' });
-  }
-
-  preload() {
-    this.load.image('titlescreen', titleScreen);
-    this.load.bitmapFont('pixfnt', fontTexture, fontXML);
-    // this.load.atlas('textures', atlasTextures, atlasJSON);
-    this.scene.launch('gameScene');
+    super({ key: 'menuScene', active: false });
   }
 
   setInteractive(interactive) {
@@ -46,7 +32,7 @@ export default class MenuScene extends Scene {
       duration,
       onComplete: () => {
         gameObject.setVisible(false);
-        cb && cb();
+        return cb && cb();
       },
     });
   }
@@ -81,7 +67,7 @@ export default class MenuScene extends Scene {
     this.mainBtn = this.add.rectangle(width / 2, 200, width, 250, null, 0).setInteractive();
     this.helpBtn = this.add.rectangle(width / 2, 370, width / 4, 50, null, 0).setInteractive();
 
-    const titleBanner = this.add.image(width / 2, 100, 'titlescreen').setScale(0.5);
+    const titleBanner = this.add.image(width / 2, 100, 'textures', 'titlescreen').setScale(0.5);
     const titlePlayTxt = this.add.bitmapText(width / 2, height / 2, 'pixfnt', text.title_play, 24, 1).setOrigin(0.5);
     const titleHelpTxt = this.add.bitmapText(width / 2, 370, 'pixfnt', text.title_help, 16, 1).setOrigin(0.5);
 

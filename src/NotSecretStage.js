@@ -1,5 +1,7 @@
 import randNum from './utils/randomNum';
 
+const texturePrefix = 'kanako0';
+
 export default class NotSecretStage {
   constructor(scene) {
     this.ctx = scene;
@@ -10,16 +12,18 @@ export default class NotSecretStage {
 
     const { anims } = scene;
     anims.create({
-      key: 'kanakodef',
-      frames: anims.generateFrameNumbers('kanako', { start: 0, end: 12 }),
-      frameRate: 10,
+      key: 'secret_def',
+      frames: anims.generateFrameNames('textures', {
+        prefix: texturePrefix,
+        start: 1,
+        end: 6,
+      }),
+      frameRate: 8,
       repeat: -1,
     });
 
-    this.sprite = scene.add.sprite(-200, 215).setScale(1.5).setVisible(false);
-    this.sprite.anims.play('kanakodef', true);
-
-    scene.events.on('secret', () => !this.played && this.startStage());
+    this.sprite = scene.add.sprite(-200, 250).setScale(1.5).setVisible(false);
+    this.sprite.anims.play('secret_def', true);
   }
 
   endStage() {
@@ -65,7 +69,11 @@ export default class NotSecretStage {
   }
 
   try() {
-    return this.startAllowed;
+    const { ctx, startAllowed, played } = this;
+    if (startAllowed && !played) {
+      this.startStage();
+      ctx.events.emit('secret');
+    }
   }
 
   reset() {

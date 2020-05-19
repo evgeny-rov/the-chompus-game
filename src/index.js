@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import GameScene from './scenes/GameScene';
 import MenuScene from './scenes/MenuScene';
 import GameoverScene from './scenes/GameoverScene';
+import LoadingScene from './scenes/LoadingScene';
 
 const config = {
   type: Phaser.WEBGL,
@@ -20,15 +21,14 @@ const config = {
     },
   },
   // pixelArt: true,
-  scene: [MenuScene, GameScene, GameoverScene],
+  scene: [LoadingScene, MenuScene, GameScene, GameoverScene],
   physics: {
     default: 'arcade',
     arcade: {
       gravity: { y: 1700 },
-      //debug: true,
+      // debug: true,
     },
   },
-  backgroundColor: 0xda5e53,
 };
 
 const game = new Phaser.Game(config);

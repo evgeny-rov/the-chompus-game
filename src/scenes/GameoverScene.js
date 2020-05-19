@@ -1,15 +1,10 @@
 import { Scene } from 'phaser';
-import gameoverCard from '../assets/gameovercard.png';
 
 import getTranslation from '../textContent';
 
 export default class GameoverScene extends Scene {
   constructor() {
     super({ key: 'gameoverScene', active: false });
-  }
-
-  preload() {
-    this.load.image('goverCard', gameoverCard);
   }
 
   init() {
@@ -48,7 +43,7 @@ export default class GameoverScene extends Scene {
     const gameScene = this.scene.get('gameScene');
 
     const sceneBG = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.3);
-    const card = this.add.image(width / 2, height / 2, 'goverCard');
+    const card = this.add.image(width / 2, height / 2, 'textures', 'gameovercard');
     const cardHeaderTxt = this.add.bitmapText(width / 2, 130, 'pixfnt', 'score', 20, 1).setOrigin(0.5);
     const cardScoreTxt = this.add.bitmapText(width / 2, 210, 'pixfnt', 0, 40, 1).setOrigin(0.5);
     const cardHsTxt = this.add.bitmapText(width / 2, 280, 'pixfnt', 'highscore', 16, 1).setOrigin(0.5);

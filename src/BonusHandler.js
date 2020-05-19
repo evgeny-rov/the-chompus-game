@@ -1,5 +1,7 @@
 import randNum from './utils/randomNum';
 
+const bonusTexture = 'bonus';
+
 export default class BonusHandler {
   constructor(scene) {
     this.ctx = scene;
@@ -17,10 +19,10 @@ export default class BonusHandler {
     this.hiSpwnProb = 11000;
 
     this.sprite = scene.physics.add
-      .sprite(this.spX, randNum(this.spLoY, this.spHiY), 'sushi')
-      .setDisplaySize(50, 40);
+      .sprite(this.spX, randNum(this.spLoY, this.spHiY), 'textures', bonusTexture)
+      .setDisplaySize(55, 45);
     this.sprite.body.setAllowGravity(false);
-    this.sprite.body.setCircle(140, 0, 0);
+    this.sprite.body.setCircle(80, 0, 0);
     this.sprite.setState('idle');
 
     scene.physics.add.overlap(this.sprite, scene.catcher, () => this.reset(true));

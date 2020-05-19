@@ -1,6 +1,5 @@
 import { Scene } from 'phaser';
 
-import gameScenePreloader from '../utils/gameScenePreloader';
 import addRectST from '../utils/rectCreatorST';
 import stagesConfig from '../stagesConfig';
 import toggleFullscreen from '../utils/fullscreenHandler';
@@ -14,11 +13,6 @@ import NotSecretStage from '../NotSecretStage';
 export default class GameScene extends Scene {
   constructor() {
     super({ key: 'gameScene', active: false });
-  }
-
-  preload() {
-    gameScenePreloader(this);
-    this.scene.launch('gameoverScene');
   }
 
   init() {
@@ -45,10 +39,11 @@ export default class GameScene extends Scene {
     this.playerSpawn = { x: width / 5, y: height / 1.4 };
 
     // backgrounds
-    this.bg3 = this.add.tileSprite(midX, prlxBGY, 592, 272, 'third').setDisplaySize(width, height);
-    this.bg2 = this.add.tileSprite(midX, prlxBGY, 592, 272, 'second').setDisplaySize(width, height);
-    this.bg1 = this.add.tileSprite(midX, prlxBGY, 700, 272, 'first').setDisplaySize(width, height);
-    this.groundBg = this.add.tileSprite(midX, height - height / 10, 1024, 288, 'newground').setScale(1, 0.5);
+    this.add.rectangle(midX, height / 2, width, height, 0xda5e53);
+    this.bg3 = this.add.tileSprite(midX, prlxBGY, 592, 272, 'textures', 'bg03').setDisplaySize(width, height);
+    this.bg2 = this.add.tileSprite(midX, prlxBGY, 592, 272, 'textures', 'bg02').setDisplaySize(width, height);
+    this.bg1 = this.add.tileSprite(midX, prlxBGY, 600, 272, 'textures', 'bg01').setDisplaySize(width, height);
+    this.groundBg = this.add.tileSprite(midX, height - height / 10, 1024, 288, 'textures', 'ground').setScale(1, 0.5);
 
     // static bodies
     this.ground = addRectST(this, midX, height / 1.2, width + 3000, 1, null, 0);
@@ -67,7 +62,7 @@ export default class GameScene extends Scene {
     this.player = new PlayerHandler(this);
     this.bonus = new BonusHandler(this);
 
-    const fsButton = this.add.image(width - 50, 25, 'uifs').setInteractive();
+    const fsButton = this.add.image(width - 50, 25, 'textures', 'uifs').setInteractive();
     fsButton.on('pointerup', () => {
       fsButton.disableInteractive();
       toggleFullscreen();
@@ -127,7 +122,7 @@ export default class GameScene extends Scene {
     this.obstacles.setActive(false);
     this.bonus.setInteractive(false);
     this.player.kill();
-    highscoreHandler(this.score, localStorage.getItem('highscore'));
+    highscoreHandler(this.score, localStorage.getItem('chompusHiscore'));
 
     this.gOverSnd.play();
     this.scoreText.setVisible(false);
