@@ -1,7 +1,15 @@
 import { Scene } from 'phaser';
+
 import getTranslation from '../textContent';
+import { getHiscore } from '../utils/highscoreHandler';
+import tinyBitmap from '../utils/tinyBitmapText';
 
 const text = getTranslation(navigator.language);
+const titleScreenTexture = 'titlescreen';
+const fntKey = 'pixfnt';
+const bonusTexture = 'bonus';
+const playerJumpTexture = 'pd02';
+const playerSpecTexture = 'ps03';
 
 export default class MenuScene extends Scene {
   constructor() {
@@ -51,34 +59,51 @@ export default class MenuScene extends Scene {
   }
 
   reset() {
+    const hiscore = getHiscore();
     this.setInteractive(false);
     this.helpContainer.setVisible(false);
     this.titleContainer.setVisible(false);
     this.fadeIn(1000, this.titleContainer);
+    return hiscore && this.titleHsTxt.setText(`${text.hiscore}${hiscore}`);
   }
 
   create() {
     const { width, height } = this.game.config;
-    const gameScene = this.scene.get('gameScene');
     const { desktop } = this.sys.game.device.os;
+    const midX = width / 2;
+    const gameScene = this.scene.get('gameScene');
     const actionTxtByDevice = desktop ? text.help_action_kb : text.help_action_ts;
     const useBonusTxtByDevice = desktop ? text.help_use_bonus_kb : text.help_use_bonus_ts;
 
-    this.mainBtn = this.add.rectangle(width / 2, 200, width, 250, null, 0).setInteractive();
-    this.helpBtn = this.add.rectangle(width / 2, 370, width / 4, 50, null, 0).setInteractive();
+    this.mainBtn = this.add.rectangle(midX, 200, width, 250, null, 0).setInteractive();
+    this.helpBtn = this.add.rectangle(midX, 370, width / 4, 50, null, 0).setInteractive();
 
-    const titleBanner = this.add.image(width / 2, 100, 'textures', 'titlescreen').setScale(0.5);
-    const titlePlayTxt = this.add.bitmapText(width / 2, height / 2, 'pixfnt', text.title_play, 24, 1).setOrigin(0.5);
-    const titleHelpTxt = this.add.bitmapText(width / 2, 370, 'pixfnt', text.title_help, 16, 1).setOrigin(0.5);
+    const titleBanner = this.add.image(midX, 100, 'textures', titleScreenTexture).setScale(0.6);
+    const titlePlayTxt = tinyBitmap(this, midX, height / 2, fntKey, text.title_play, 20);
+    const titleHelpTxt = tinyBitmap(this, midX, 370, fntKey, text.title_help, 15);
+    this.titleHsTxt = tinyBitmap(this, midX, 150, fntKey, null, 12).setAlpha(0.7);
 
-    const helpBG = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.5);
-    const helpGetBonusTxt = this.add.bitmapText(width / 2, 150, 'pixfnt', text.help_bonus, 10, 1).setOrigin(0.5);
-    const helpActionTxt = this.add.bitmapText(width - 150, 300, 'pixfnt', actionTxtByDevice, 10, 1).setOrigin(0.5);
-    const helpUseBonusTxt = this.add.bitmapText(150, 300, 'pixfnt', useBonusTxtByDevice, 10, 1).setOrigin(0.5);
-    const helpFS = this.add.bitmapText(width - 50, 70, 'pixfnt', text.help_fullscreen, 10, 1).setOrigin(0.5);
+    const helpBG = this.add.rectangle(midX, height / 2, width, height, 0x000000, 0.5);
+    const helpGetBonusTxt = tinyBitmap(this, midX, 150, fntKey, text.help_bonus, 10);
+    const helpActionTxt = tinyBitmap(this, width - 150, 300, fntKey, actionTxtByDevice, 10);
+    const helpUseBonusTxt = tinyBitmap(this, 150, 300, fntKey, useBonusTxtByDevice, 10);
+    const helpFS = tinyBitmap(this, width - 50, 70, fntKey, text.help_fullscreen, 10);
 
-    const titleElements = [titleBanner, titlePlayTxt, titleHelpTxt];
-    const helpElements = [helpBG, helpGetBonusTxt, helpActionTxt, helpUseBonusTxt, helpFS];
+    const bonusImg = this.add.image(midX, 100, 'textures', bonusTexture).setScale(0.3);
+    const playerJumpImg = this.add.image(width - 150, 250, 'textures', playerJumpTexture).setScale(0.5);
+    const playerActionImg = this.add.image(150, 250, 'textures', playerSpecTexture).setScale(0.5);
+
+    const titleElements = [titleBanner, titlePlayTxt, titleHelpTxt, this.titleHsTxt];
+    const helpElements = [
+      helpBG,
+      helpGetBonusTxt,
+      helpActionTxt,
+      helpUseBonusTxt,
+      helpFS,
+      bonusImg,
+      playerJumpImg,
+      playerActionImg,
+    ];
 
     this.titleContainer = this.add.container(null, null, titleElements);
     this.helpContainer = this.add.container(null, null, helpElements).setVisible(false);

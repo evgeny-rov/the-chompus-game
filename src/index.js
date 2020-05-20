@@ -20,7 +20,6 @@ const config = {
       capture: false,
     },
   },
-  // pixelArt: true,
   scene: [LoadingScene, MenuScene, GameScene, GameoverScene],
   physics: {
     default: 'arcade',

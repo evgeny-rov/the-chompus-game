@@ -8,7 +8,7 @@ const specialObstacle = 'obs00';
 
 export default class Player {
   constructor(scene) {
-    this.ctx = scene;
+    this.scene = scene;
     this.camera = scene.cameras.main;
     this.input = scene.input;
     this.jumpSnd = scene.sound.add('player-jump', { volume: 0.5 });
@@ -54,14 +54,14 @@ export default class Player {
 
     this.groundCollider = scene.physics.add.collider(scene.ground, this.sprite);
 
-    this.obstacleCollider = scene.physics.add.overlap(this.sprite, this.obstacles, (p, o) => {
-      if (o.frame.name === specialObstacle) {
-        this.ctx.negativeSnd.play();
-        this.ctx.setScore(1, false);
-        this.obstacleHandler.cycle(o);
-        return this.ctx.notSecretStage.try();
+    this.obstacleCollider = scene.physics.add.overlap(this.sprite, this.obstacles, (p, obst) => {
+      if (obst.frame.name === specialObstacle) {
+        this.scene.negativeSnd.play();
+        this.scene.setScore(1, false);
+        this.obstacleHandler.cycle(obst);
+        return this.scene.notSecretStage.try();
       }
-      o.disableBody();
+      obst.disableBody();
       return scene.gameOver();
     });
 
@@ -83,8 +83,9 @@ export default class Player {
   }
 
   setBonus() {
+    const { sprite } = this;
     this.availableBonus = true;
-    this.sprite.setFrame(playerSpecJumpTexture);
+    sprite.setFrame(playerSpecJumpTexture);
   }
 
   unsetBonus() {
@@ -105,48 +106,58 @@ export default class Player {
   }
 
   attack() {
-    const { obstacles } = this.ctx;
+    const { obstacles } = this.scene;
     this.attackSnd.play();
     this.unsetBonus();
     this.camera.shake(150, 0.03, true);
     obstacles.kill();
-    this.ctx.incProgress();
+    this.scene.incProgress();
   }
 
   activateBonus() {
-    const { ctx, availableBonus, sprite } = this;
+    const { scene, availableBonus, sprite } = this;
     if (availableBonus) {
       this.setInvincible();
       const onGround = sprite.body.touching.down;
       const velocity = onGround ? -700 : 500;
       sprite.body.setVelocityY(velocity);
       this.availableBonus = false;
-      ctx.time.delayedCall(150, () => {
+      scene.time.delayedCall(150, () => {
         this.activatedBonus = true;
       }, null, this);
     }
   }
 
   reset() {
-    this.sprite.setPosition(this.xPos, -50);
-    this.sprite.setFrame(playerDefTexture);
+    const { sprite } = this;
+    sprite.setPosition(this.xPos, -50);
+    sprite.setFrame(playerDefTexture);
     this.unsetBonus();
     this.unsetInvincible();
   }
 
   kill() {
-    this.sprite.anims.pause();
-    this.sprite.setFrame(playerKillTexture);
-    this.sprite.setVelocityY(-1000);
+    const { sprite } = this;
+    sprite.anims.pause();
+    sprite.setFrame(playerKillTexture);
+    sprite.setVelocityY(-1000);
   }
 
   update() {
-    const { ctx, input, keys, sprite, availableBonus, activatedBonus } = this;
+    const {
+      scene,
+      input,
+      keys,
+      sprite,
+      availableBonus,
+      activatedBonus,
+    } = this;
+
     const onGround = sprite.body.touching.down;
     const pointer = input.activePointer;
     const pointerActive = pointer.isDown && pointer.y > 100;
-    const pointerOnJump = pointerActive && pointer.x > ctx.game.config.width / 2;
-    const pointerOnBonus = pointerActive && pointer.x < ctx.game.config.width / 2;
+    const pointerOnJump = pointerActive && pointer.x > scene.game.config.width / 2;
+    const pointerOnBonus = pointerActive && pointer.x < scene.game.config.width / 2;
 
     if (pointerOnBonus) this.activateBonus();
 

@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+
 import textureAtlas from '../assets/textureatlas.png';
 import textureAtlasJSON from '../assets/textureatlas.json';
 
@@ -26,13 +27,20 @@ export default class MenuScene extends Scene {
     this.load.atlas('textures', textureAtlas, textureAtlasJSON);
   }
 
+  launch() {
+    this.scene.launch('menuScene');
+    this.scene.launch('gameScene');
+    this.scene.launch('gameoverScene');
+    this.scene.stop();
+  }
+
   create() {
     const { width, height } = this.game.config;
     const texturePrefix = 'obs';
     const spinner = this.physics.add.sprite(width / 2, height / 2, 'textures', getRandomFrame(texturePrefix, 1, 16));
     spinner.setAlpha(0.5);
     spinner.body.setAllowGravity(false);
-    spinner.body.setAngularVelocity(300);
+    spinner.body.setAngularVelocity(1200);
 
     this.load.audio('player-jump', playerJump);
     this.load.audio('player-attack', playerAttack);
@@ -45,12 +53,7 @@ export default class MenuScene extends Scene {
     this.load.audio('not-secret', notSecret);
 
     this.load.bitmapFont('pixfnt', fontTexture, fontXML);
-    this.load.on('complete', () => {
-      this.scene.launch('menuScene');
-      this.scene.launch('gameScene');
-      this.scene.launch('gameoverScene');
-      this.scene.stop();
-    });
+    this.load.on('complete', () => this.launch());
 
     this.load.start();
   }

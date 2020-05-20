@@ -1,6 +1,11 @@
 import { Scene } from 'phaser';
 
 import getTranslation from '../textContent';
+import { getHiscore } from '../utils/highscoreHandler';
+import tinyBitmap from '../utils/tinyBitmapText';
+
+const text = getTranslation(navigator.language);
+const fontKey = 'pixfnt';
 
 export default class GameoverScene extends Scene {
   constructor() {
@@ -41,28 +46,38 @@ export default class GameoverScene extends Scene {
   create() {
     const { width, height } = this.game.config;
     const gameScene = this.scene.get('gameScene');
+    const midX = width / 2;
 
-    const sceneBG = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.3);
-    const card = this.add.image(width / 2, height / 2, 'textures', 'gameovercard');
-    const cardHeaderTxt = this.add.bitmapText(width / 2, 130, 'pixfnt', 'score', 20, 1).setOrigin(0.5);
-    const cardScoreTxt = this.add.bitmapText(width / 2, 210, 'pixfnt', 0, 40, 1).setOrigin(0.5);
-    const cardHsTxt = this.add.bitmapText(width / 2, 280, 'pixfnt', 'highscore', 16, 1).setOrigin(0.5);
-    const buttonTxt = this.add.bitmapText(width / 2, 330, 'pixfnt', 'заново', 24, 1)
-      .setOrigin(0.5)
-      .setAlpha(0.8);
+    const sceneBG = this.add.rectangle(midX, height / 2, width, height, 0x000000, 0.3);
+    const card = this.add.image(midX, height / 2, 'textures', 'gameovercard');
+    const cardHeaderTxt = tinyBitmap(this, midX, 130, fontKey, text.score, 20);
+    const cardScoreTxt = tinyBitmap(this, midX, 210, fontKey, 0, 40);
+    const cardHsTxt = tinyBitmap(this, midX, 280, fontKey, null, 16);
+    const buttonTxt = tinyBitmap(this, midX, 330, fontKey, text.g_over_retry, 20).setAlpha(0.8);
 
     this.button = this.add.rectangle(width / 2, 330, 190, 50, null, 0).setInteractive();
 
-    const cardElements = [this.button, sceneBG, card, buttonTxt, cardHeaderTxt, cardScoreTxt, cardHsTxt];
+    const cardElements = [
+      this.button,
+      sceneBG,
+      card,
+      buttonTxt,
+      cardHeaderTxt,
+      cardScoreTxt,
+      cardHsTxt,
+    ];
+
     this.cardContainer = this.add.container(0, -500, cardElements).setVisible(false);
 
     this.button.on('pointerup', () => this.sleep(gameScene));
 
     this.events.on('wake', () => {
-      const newHighscore = localStorage.getItem('chompusHiscore') || 0;
+      const newHighscore = getHiscore() || 0;
       cardScoreTxt.setText(gameScene.score);
-      cardHsTxt.setText(`highscore ${newHighscore}`);
+      cardHsTxt.setText(`${text.hiscore}${newHighscore}`);
       this.wake();
     });
+
+    this.scene.sleep();
   }
 }

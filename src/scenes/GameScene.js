@@ -3,7 +3,7 @@ import { Scene } from 'phaser';
 import addRectST from '../utils/rectCreatorST';
 import stagesConfig from '../stagesConfig';
 import toggleFullscreen from '../utils/fullscreenHandler';
-import highscoreHandler from '../utils/highscoreHandler';
+import { setHiscore } from '../utils/highscoreHandler';
 
 import ObstacleHandler from '../ObstacleHandler';
 import PlayerHandler from '../PlayerHandler';
@@ -122,7 +122,7 @@ export default class GameScene extends Scene {
     this.obstacles.setActive(false);
     this.bonus.setInteractive(false);
     this.player.kill();
-    highscoreHandler(this.score, localStorage.getItem('chompusHiscore'));
+    setHiscore(this.score);
 
     this.gOverSnd.play();
     this.scoreText.setVisible(false);

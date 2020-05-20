@@ -4,7 +4,7 @@ const bonusTexture = 'bonus';
 
 export default class BonusHandler {
   constructor(scene) {
-    this.ctx = scene;
+    this.scene = scene;
     this.bonusSnd = scene.sound.add('bonus', { volume: 0.3, rate: 2 });
 
     this.spX = scene.game.config.width + 200;
@@ -14,7 +14,13 @@ export default class BonusHandler {
     this.player = scene.player;
     this.obstacles = scene.obstacles.getObstacles();
 
-    this.eventTimer = scene.time.addEvent({ delay: 5000, paused: true, loop: true, callback: this.handleEvent.bind(this) });
+    this.eventTimer = scene.time.addEvent({
+      delay: 5000,
+      paused: true,
+      loop: true,
+      callback: this.handleEvent.bind(this),
+    });
+
     this.loSpwnProb = 7000;
     this.hiSpwnProb = 11000;
 
@@ -39,7 +45,15 @@ export default class BonusHandler {
   }
 
   reset(replay = false) {
-    const { spX, spLoY, spHiY, sprite, loSpwnProb, hiSpwnProb } = this;
+    const {
+      spX,
+      spLoY,
+      spHiY,
+      sprite,
+      loSpwnProb,
+      hiSpwnProb,
+    } = this;
+
     sprite.setPosition(spX, randNum(spLoY, spHiY));
     sprite.setState('idle');
     this.eventTimer.delay = randNum(loSpwnProb, hiSpwnProb);
@@ -47,8 +61,9 @@ export default class BonusHandler {
   }
 
   handleEvent() {
+    const { sprite } = this;
     if (!this.eventTimer.paused) {
-      this.sprite.setState('active');
+      sprite.setState('active');
       this.eventTimer.paused = true;
     }
   }
@@ -59,7 +74,7 @@ export default class BonusHandler {
   }
 
   update() {
-    const { sprite } = this;
-    if (sprite.state === 'active') sprite.x -= this.ctx.speed;
+    const { sprite, scene } = this;
+    if (sprite.state === 'active') sprite.x -= scene.speed;
   }
 }

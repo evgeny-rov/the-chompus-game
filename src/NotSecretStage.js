@@ -4,11 +4,11 @@ const texturePrefix = 'kanako0';
 
 export default class NotSecretStage {
   constructor(scene) {
-    this.ctx = scene;
+    this.scene = scene;
 
     this.actionSnd = scene.sound.add('not-secret', { volume: 0.2 });
     this.played = false;
-    this.startAllowed = false;
+    this.playAllowed = false;
 
     const { anims } = scene;
     anims.create({
@@ -27,36 +27,36 @@ export default class NotSecretStage {
   }
 
   endStage() {
-    const { ctx } = this;
-    ctx.tweens.add({
-      targets: [this.sprite],
+    const { scene, sprite } = this;
+    scene.tweens.add({
+      targets: [sprite],
       delay: 2000,
       duration: 2000,
       x: { from: 512, to: 1224 },
       ease: 'Linear',
       onStart: () => {
         const toAdd = randNum(0, 1) === 1;
-        this.ctx.setScore(10, toAdd);
+        scene.setScore(10, toAdd);
         const sound = toAdd ? 'positive' : 'negative';
-        this.ctx.sound.play(sound, { detune: 400, volume: 0.4 });
+        scene.sound.play(sound, { detune: 400, volume: 0.4 });
       },
       onComplete: () => {
-        this.sprite.setVisible(false);
-        this.sprite.setX(-200);
-        ctx.events.emit('secretover');
+        sprite.setVisible(false);
+        sprite.setX(-200);
+        scene.events.emit('secretover');
       },
     });
   }
 
   startStage() {
-    const { ctx, actionSnd } = this;
+    const { scene, actionSnd, sprite } = this;
     this.played = true;
-    this.startAllowed = false;
+    this.playAllowed = false;
+    sprite.setVisible(true);
     actionSnd.play();
-    this.sprite.setVisible(true);
 
-    ctx.tweens.add({
-      targets: [this.sprite],
+    scene.tweens.add({
+      targets: [sprite],
       duration: 3000,
       x: { from: -200, to: 512 },
       ease: 'Linear',
@@ -64,20 +64,20 @@ export default class NotSecretStage {
     });
   }
 
-  setActive(active) {
-    this.startAllowed = active;
+  setActive(allowed) {
+    this.playAllowed = allowed;
   }
 
   try() {
-    const { ctx, startAllowed, played } = this;
-    if (startAllowed && !played) {
+    const { scene, playAllowed, played } = this;
+    if (playAllowed && !played) {
       this.startStage();
-      ctx.events.emit('secret');
+      scene.events.emit('secret');
     }
   }
 
   reset() {
     this.played = false;
-    this.startAllowed = false;
+    this.playAllowed = false;
   }
 }

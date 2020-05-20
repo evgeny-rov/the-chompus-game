@@ -5,15 +5,20 @@ const texturePrefix = 'obs';
 
 export default class ObstacleHandler {
   constructor(scene) {
-    this.ctx = scene;
+    this.scene = scene;
     this.obstacles = scene.physics.add.group();
     this.preactionSnd = scene.sound.add('obstacle-preaction', { volume: 0.4 });
-    this.actionSnd = scene.sound.add('obstacle-action', { volume: 0.3 });
+    this.actionSnd = scene.sound.add('obstacle-action', { volume: 1.2, detune: 1200 });
 
     this.spX = scene.game.config.width + 200;
     this.spY = scene.game.config.height / 1.4;
     this.moving = true;
-    this.eventTimer = scene.time.addEvent({ delay: 3000, paused: true, loop: true, callback: this.handleEvent.bind(this) });
+    this.eventTimer = scene.time.addEvent({
+      delay: 3000,
+      paused: true,
+      loop: true,
+      callback: this.handleEvent.bind(this),
+    });
 
     this.groundCollider = scene.physics.add.collider(this.obstacles, scene.ground);
 
@@ -34,12 +39,13 @@ export default class ObstacleHandler {
     });
 
     scene.physics.add.collider(this.obstacles, scene.stompCatcher, (ctch, obst) => {
+      const { obstacles } = this;
       obst.setState('killed');
-      const allKilled = this.obstacles.getChildren().every((o) => o.state === 'killed');
+      const allKilled = obstacles.getChildren().every((o) => o.state === 'killed');
       if (allKilled && this.moving) {
         this.toggleColliders(true);
         scene.player.unsetInvincible();
-        this.obstacles.getChildren().forEach((o) => this.cycle(o));
+        obstacles.getChildren().forEach((o) => this.cycle(o));
         this.setActive(true);
       }
     });
@@ -74,11 +80,11 @@ export default class ObstacleHandler {
   cycle(obst) {
     const { spX, spY } = this;
     const xPos = randNum(spX, spX + 650);
-    const target = obst || this.ctx.physics.add.sprite(xPos, spY, 'textures');
-    const newSprite = getRandomFrame(texturePrefix, 0, 16);
-    const newScale = randNum(50, 80) / 100;
+    const target = obst || this.scene.physics.add.sprite(xPos, spY, 'textures');
+    const newFrame = getRandomFrame(texturePrefix, 0, 16);
+    const newScale = randNum(60, 80) / 100;
     target.setScale(newScale);
-    target.setFrame(newSprite);
+    target.setFrame(newFrame);
     target.setState('default');
 
     if (!obst) {
@@ -92,33 +98,43 @@ export default class ObstacleHandler {
   }
 
   setObstacles(n) {
-    const length = this.obstacles.getLength();
+    const { obstacles } = this;
+    const length = obstacles.getLength();
     const amountToAdd = n - length;
     for (let i = amountToAdd; i > 0; i -= 1) {
-      this.obstacles.add(this.cycle());
+      obstacles.add(this.cycle());
     }
   }
 
   handleEvent() {
-    this.preactionSnd.play();
-    this.ctx.time.delayedCall(1000, () => {
+    const {
+      preactionSnd,
+      scene,
+      actionSnd,
+      obstacles,
+      spX,
+    } = this;
+
+    preactionSnd.play();
+    scene.time.delayedCall(1000, () => {
       if (!this.eventTimer.paused) {
-        this.actionSnd.play();
-        this.obstacles.getChildren()
-          .forEach((obs) => obs.body.x < this.spX && obs.setVelocityY(-800));
+        actionSnd.play();
+        obstacles.getChildren()
+          .forEach((obs) => obs.body.x < spX && obs.setVelocityY(-800));
         this.eventTimer.delay = randNum(5000, 8000);
       }
     }, null, this);
   }
 
   kill() {
-    this.obstacles.setVelocityY(-400);
+    const { obstacles } = this;
+    obstacles.setVelocityY(-400);
     this.setActive(false);
     this.toggleColliders(false);
   }
 
   update() {
-    const { speed } = this.ctx;
-    return this.moving && this.obstacles.incX(-speed);
+    const { moving, obstacles, scene } = this;
+    return moving && obstacles.incX(-scene.speed);
   }
 }
