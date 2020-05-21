@@ -2,6 +2,8 @@ const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const { GenerateSW } = require('workbox-webpack-plugin');
+const WebpackPwaManifest = require('webpack-pwa-manifest');
 
 module.exports = {
   mode: "development",
@@ -35,6 +37,23 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: "./index.html"
-    })
-  ]
+    }),
+    new GenerateSW({
+      clientsClaim: true,
+      skipWaiting: true,
+    }),
+    new WebpackPwaManifest({
+      name: 'The Chompus',
+      short_name: 'The Chompus',
+      start_url: './index.html',
+      display: 'standalone',
+      orientation: 'landscape-primary',
+      background_color: '#000',
+      description: '2d endless scroller game',
+      icons: [{
+        src: path.resolve('src/assets/icon-512x512.png'),
+        sizes: [512, 192, 152],
+      }],
+    }),
+  ],
 };
