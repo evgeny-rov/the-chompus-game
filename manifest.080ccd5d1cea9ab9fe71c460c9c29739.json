@@ -18,7 +18,7 @@
   ],
   "name": "The Chompus",
   "short_name": "The Chompus",
-  "orientation": "landscape-primary",
+  "orientation": "landscape",
   "display": "standalone",
   "start_url": "./index.html",
   "background_color": "#000",
