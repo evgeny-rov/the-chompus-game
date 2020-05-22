@@ -22,5 +22,5 @@
   "display": "standalone",
   "start_url": "./index.html",
   "background_color": "#000",
-  "description": "2d endless scroller game"
+  "description": "2D Endless Runner Web Game"
 }
