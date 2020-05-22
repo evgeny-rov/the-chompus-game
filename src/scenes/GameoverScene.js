@@ -1,10 +1,9 @@
 import { Scene } from 'phaser';
 
-import getTranslation from '../textContent';
+import text from '../translations';
 import { getHiscore } from '../utils/highscoreHandler';
 import tinyBitmap from '../utils/tinyBitmapText';
 
-const text = getTranslation(navigator.language);
 const fontKey = 'pixfnt';
 
 export default class GameoverScene extends Scene {

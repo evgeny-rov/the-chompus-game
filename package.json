@@ -1,7 +1,7 @@
 {
   "name": "the-chompus-game",
-  "version": "1.0.0",
-  "description": "web js 2d endless-runner game",
+  "version": "1.0.1",
+  "description": "2D Endless Runner Web Game",
   "main": "src/index.js",
   "scripts": {
     "build": "webpack --config webpack/prod.js ",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jopinsky/the-chompus-game"
+    "url": "git+https://github.com/evgeny-rov/the-chompus-game"
   },
   "author": "Evgeny Rov <bitsinmyhead@gmail.com>",
   "license": "MIT",
@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "minimist": "^1.2.5",
-    "phaser": "^3.20.1"
+    "phaser": "^3.20.1",
+    "workbox-google-analytics": "^5.1.3"
   }
 }

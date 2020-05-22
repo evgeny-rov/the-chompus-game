@@ -47,9 +47,9 @@ module.exports = {
       short_name: 'The Chompus',
       start_url: './index.html',
       display: 'standalone',
-      orientation: 'landscape-primary',
+      orientation: 'landscape',
       background_color: '#000',
-      description: '2d endless scroller game',
+      description: '2D Endless Runner Web Game',
       icons: [{
         src: path.resolve('src/assets/icon-512x512.png'),
         sizes: [512, 192, 152],

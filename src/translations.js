@@ -27,4 +27,7 @@ const translations = {
   },
 };
 
-export default (lang) => (lang === 'ru' ? translations.ru : translations.en);
+const userLanguages = navigator.languages.join('');
+const hasRussian = /ru/i.test(userLanguages);
+
+export default hasRussian ? translations.ru : translations.en;
