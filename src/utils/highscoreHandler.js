@@ -1,7 +1,7 @@
-const HISCORE = 'chompusbest';
+const HISCORE_KEY = 'chompusbest';
 
-const scoreStorage = localStorage;
+const scoreStore = localStorage;
 
-export const getHiscore = () => scoreStorage.getItem(HISCORE);
+export const getHiscore = () => scoreStore.getItem(HISCORE_KEY);
 
-export const setHiscore = (score) => score > getHiscore() && scoreStorage.setItem(HISCORE, score);
+export const setHiscore = (score) => score > getHiscore() && scoreStore.setItem(HISCORE_KEY, score);

@@ -11,10 +11,10 @@ import playerAttack from '../assets/audio/player-attack.mp3';
 import obstaclePreaction from '../assets/audio/obstacle-preaction.mp3';
 import obstacleAction from '../assets/audio/obstacle-action.mp3';
 import bonus from '../assets/audio/bonus.mp3';
-import gOver from '../assets/audio/gover.mp3';
+import gOver from '../assets/audio/g-over.mp3';
 import positive from '../assets/audio/positive.mp3';
 import negative from '../assets/audio/negative.mp3';
-import notSecret from '../assets/audio/notsecret.mp3';
+import notSecret from '../assets/audio/not-secret.mp3';
 
 import getRandomFrame from '../utils/getRandomFrame';
 

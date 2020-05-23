@@ -36,7 +36,7 @@ module.exports = {
       WEBGL_RENDERER: JSON.stringify(true)
     }),
     new HtmlWebpackPlugin({
-      template: "./index.html"
+      template: "./index.html",
     }),
     new GenerateSW({
       clientsClaim: true,
@@ -50,6 +50,7 @@ module.exports = {
       orientation: 'landscape',
       background_color: '#000',
       description: '2D Endless Runner Web Game',
+      fingerprints: false,
       icons: [{
         src: path.resolve('src/assets/icon-512x512.png'),
         sizes: [512, 192, 152],

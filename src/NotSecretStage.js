@@ -6,7 +6,7 @@ export default class NotSecretStage {
   constructor(scene) {
     this.scene = scene;
 
-    this.actionSnd = scene.sound.add('not-secret', { volume: 0.2 });
+    this.actionSnd = scene.sound.add('not-secret', { volume: scene.masterVolume * 1.5 });
     this.played = false;
     this.playAllowed = false;
 
@@ -38,7 +38,7 @@ export default class NotSecretStage {
         const toAdd = randNum(0, 1) === 1;
         scene.setScore(10, toAdd);
         const sound = toAdd ? 'positive' : 'negative';
-        scene.sound.play(sound, { detune: 400, volume: 0.4 });
+        scene.sound.play(sound, { detune: 400, volume: scene.masterVolume * 2 });
       },
       onComplete: () => {
         sprite.setVisible(false);

@@ -5,7 +5,7 @@ const bonusTexture = 'bonus';
 export default class BonusHandler {
   constructor(scene) {
     this.scene = scene;
-    this.bonusSnd = scene.sound.add('bonus', { volume: 0.3, rate: 2 });
+    this.bonusSnd = scene.sound.add('bonus', { volume: scene.masterVolume * 1, rate: 2 });
 
     this.spX = scene.game.config.width + 200;
     this.spLoY = scene.game.config.height / 1.8;

@@ -11,8 +11,8 @@ export default class Player {
     this.scene = scene;
     this.camera = scene.cameras.main;
     this.input = scene.input;
-    this.jumpSnd = scene.sound.add('player-jump', { volume: 0.5 });
-    this.attackSnd = scene.sound.add('player-attack', { volume: 0.3 });
+    this.jumpSnd = scene.sound.add('player-jump', { volume: scene.masterVolume * 5 });
+    this.attackSnd = scene.sound.add('player-attack', { volume: scene.masterVolume * 1.3 });
 
     this.xPos = scene.game.config.width / 5;
 
