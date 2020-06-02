@@ -1,4 +1,4 @@
-# The Chompus
+![](titlecard.png)
 [The Chompus](https://evgeny-rov.github.io/the-chompus-game/) is a 2D Endless Runner Web JS game inspired by
 Google Chrome T-Rex Game.
   - Made with Phaser Framework, Webpack and Workbox.
